@@ -1,0 +1,71 @@
+.create-discipline-container {
+  padding: 2rem;
+  font-family: Arial, sans-serif;
+}
+
+.create-discipline-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.create-discipline-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.create-discipline-instructions {
+  font-size: 1.2rem;
+  color: #555;
+}
+
+.create-discipline-form {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+select {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+.form-button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.form-button.primary {
+  background-color: #28a745;
+  color: white;
+}
+
+.form-button.secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.form-button:hover {
+  opacity: 0.9;
+}
