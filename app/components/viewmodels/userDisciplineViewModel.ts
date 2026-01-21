@@ -1,5 +1,6 @@
+"use client";
+
 import { useState, useEffect } from "react";
-import { createDiscipline } from "@/app/services/disciplineService";
 import { Discipline } from "@/app/models/types/discipline";
 import { localRepository } from "@/app/models/repository/localRepository";
 
@@ -8,9 +9,13 @@ export function useUserDisciplineViewModel() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const loadDisciplines = () => {
+    const stored = localRepository.getDisciplines();
+    setDisciplines(stored);
+  };
+
   useEffect(() => {
-    const storedDisciplines = localRepository.getDisciplines();
-    setDisciplines(storedDisciplines);
+    loadDisciplines();
   }, []);
 
   const addDiscipline = async (
@@ -22,16 +27,17 @@ export function useUserDisciplineViewModel() {
 
     try {
       const newDiscipline: Discipline = {
-        id: Math.random().toString(36).substring(2, 15),
+        id: crypto.randomUUID(),
         name,
         grade,
         createdAt: new Date(),
+        units: [], // 🔥 FUNDAMENTAL
       };
 
       localRepository.saveDiscipline(newDiscipline);
       setDisciplines((prev) => [...prev, newDiscipline]);
 
-      return newDiscipline; // 🔴 ESSENCIAL
+      return newDiscipline;
     } catch (err) {
       setError("Erro ao criar a disciplina");
       throw err;
@@ -45,6 +51,6 @@ export function useUserDisciplineViewModel() {
     loading,
     error,
     addDiscipline,
+    reload: loadDisciplines, // 👈 ajuda a refletir alterações
   };
 }
-

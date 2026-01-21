@@ -9,7 +9,6 @@ import { Discipline } from "@/app/models/types/discipline";
 const DisciplinePage = () => {
   const { id } = useParams();
   const router = useRouter();
-
   const [discipline, setDiscipline] = useState<Discipline | null>(null);
 
   useEffect(() => {
@@ -17,7 +16,7 @@ const DisciplinePage = () => {
     const found = disciplines.find((d) => d.id === id);
 
     if (!found) {
-      router.push("/dashboard"); // segurança
+      router.push("/dashboard");
       return;
     }
 
@@ -25,43 +24,48 @@ const DisciplinePage = () => {
   }, [id, router]);
 
   if (!discipline) {
-    return <p className="disciplines-container">Carregando disciplina...</p>;
+    return <p>Carregando...</p>;
   }
 
   return (
     <div className="disciplines-container">
-      <header className="disciplines-header">
-        <h1 className="disciplines-title">{discipline.name}</h1>
-        <p className="disciplines-welcome">
-          Série: {discipline.grade}
-        </p>
-        <p>
-          Criada em: {discipline.createdAt.toLocaleDateString()}
-        </p>
+      <header>
+        <h1>{discipline.name}</h1>
+        <p>Série: {discipline.grade}</p>
       </header>
 
-      <div className="disciplines-sections">
-        <section className="disciplines-section">
-          <h2>Aulas</h2>
-          <button onClick={() => router.push(`/disciplines/${discipline.id}/create-unit`)}>
-            + Criar Aula
-          </button>
-        </section>
+      <section className="disciplines-section">
+        <h2>Aulas</h2>
 
-        <section className="disciplines-section">
-          <h2>Materiais</h2>
-          <button onClick={() => router.push(`/disciplines/${discipline.id}/add-material`)}>
-            + Adicionar Material
-          </button>
-        </section>
+        {discipline.units.length === 0 && (
+          <p>Nenhuma aula criada.</p>
+        )}
 
-        <section className="disciplines-section">
-          <h2>Atividades</h2>
-          <button onClick={() => router.push(`/disciplines/${discipline.id}/create-activity`)}>
-            + Criar Atividade
-          </button>
-        </section>
-      </div>
+        <ul>
+          {discipline.units.map((unit) => (
+            <li key={unit.id}>
+              <strong>{unit.theme}</strong>
+              <button
+                onClick={() =>
+                  router.push(
+                    `/disciplines/${discipline.id}/units/${unit.id}`
+                  )
+                }
+              >
+                Ver detalhes
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        <button
+          onClick={() =>
+            router.push(`/disciplines/${discipline.id}/create-unit`)
+          }
+        >
+          + Criar Aula
+        </button>
+      </section>
     </div>
   );
 };
