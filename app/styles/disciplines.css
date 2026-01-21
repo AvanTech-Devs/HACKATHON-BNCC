@@ -1,0 +1,85 @@
+.disciplines-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.disciplines-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.disciplines-title {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.disciplines-welcome {
+  font-size: 1rem;
+  color: #555;
+}
+
+.disciplines-sections {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.disciplines-section {
+  flex: 1;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.disciplines-section h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.disciplines-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem 0;
+}
+
+.disciplines-section li {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.disciplines-section li span {
+  display: block;
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.disciplines-button {
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  text-align: center;
+}
+
+.disciplines-button:hover {
+  background-color: #0056b3;
+}
+
+.disciplines-button.primary {
+  margin-top: 1rem;
+  background-color: #28a745;
+}
+
+.disciplines-button.primary:hover {
+  background-color: #218838;
+}

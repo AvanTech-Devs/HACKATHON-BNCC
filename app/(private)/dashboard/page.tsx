@@ -10,9 +10,11 @@ import DashboardFooter from "../../components/views/DashboardFooter";
 import { formatNumber } from "../../utils/formatNumber";
 import { formatDate } from "../../utils/formatDate";
 import { logAction } from "../../utils/logAction";
+import { useRouter } from "next/navigation";
 
 const DashboardPage = () => {
   const { dashboardData } = useUserDashboardViewModel();
+  const router = useRouter();
 
   if (!dashboardData) {
     return <p className="dashboard-container">Carregando...</p>;
@@ -20,12 +22,16 @@ const DashboardPage = () => {
 
   const handleCreateDiscipline = () => {
     logAction("Criar Disciplina", { user: dashboardData.userName });
-    console.log("Criar disciplina clicado!");
+    router.push("/create-discipline");
   };
 
   const handleCreateMaterial = () => {
     logAction("Criar Material", { user: dashboardData.userName });
     console.log("Criar material clicado!");
+  };
+
+  const handleViewDisciplines = () => {
+    router.push("/disciplines");
   };
 
   return (
@@ -57,6 +63,15 @@ const DashboardPage = () => {
             onCreateDiscipline={handleCreateDiscipline}
           />
         </DashboardCard>
+
+        {/* Ver Disciplinas */}
+        <DashboardCard title="Ver Disciplinas">
+          <button className="view-disciplines-button" onClick={handleViewDisciplines}>
+            Ver Disciplinas
+          </button>
+        </DashboardCard>
+
+      
       </div>
 
       {/* Rodapé */}
