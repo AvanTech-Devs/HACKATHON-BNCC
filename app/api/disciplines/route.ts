@@ -1,14 +1,49 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from "next/server";
+import { createChatEngine } from "@/app/api/chat/engine/chat";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (req.method === 'GET') {
-        // Retorna todas as disciplinas
-        res.status(200).json({ message: 'Lista de disciplinas' });
-    } else if (req.method === 'POST') {
-        // Cria uma nova disciplina
-        const { name, grade } = req.body;
-        res.status(201).json({ message: `Disciplina ${name} criada para a série ${grade}` });
-    } else {
-        res.status(405).json({ message: 'Método não permitido' });
+export async function POST(request: NextRequest) {
+    try {
+        const { name, grade } = await request.json();
+
+        if (!name || !grade) {
+            return NextResponse.json(
+                { error: "name e grade são obrigatórios." },
+                { status: 400 }
+            );
+        }
+
+        const chatEngine = await createChatEngine();
+
+        const userPrompt = `
+Crie uma descrição detalhada para a disciplina abaixo:
+
+Nome da disciplina: ${name}
+Série/Ano: ${grade}
+
+A descrição deve ser formal, pedagógica e alinhada às diretrizes educacionais brasileiras.
+`;
+
+        const response = await chatEngine.chat({
+            message: userPrompt,
+        });
+
+        const description = response.message?.content ?? "Descrição não disponível";
+
+        // Simula a criação da disciplina no banco de dados
+        const newDiscipline = {
+            id: Math.random().toString(36).substring(2, 15), // ID gerado aleatoriamente
+            name,
+            grade,
+            description,
+            createdAt: new Date(),
+        };
+
+        return NextResponse.json(newDiscipline, { status: 201 });
+    } catch (error) {
+        console.error("[Discipline API]", error);
+        return NextResponse.json(
+            { error: (error as Error).message },
+            { status: 500 }
+        );
     }
 }
