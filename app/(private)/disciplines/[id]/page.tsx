@@ -1,49 +1,31 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import "@/app/styles/disciplines.css";
-import { localRepository } from "@/app/models/repository/localDisciplineRepository";
-import { Discipline } from "@/app/models/types/discipline";
+
 import { useUserDisciplineViewModel } from "@/app/components/viewmodels/userDisciplineViewModel";
 
 const DisciplinePage = () => {
   const { id } = useParams();
   const router = useRouter();
-  const [discipline, setDiscipline] = useState<Discipline | null>(null);
-  
-  // Usando o view model
-  const { deleteUnit, reload } = useUserDisciplineViewModel();
 
+  const { state, actions } = useUserDisciplineViewModel();
+
+  const discipline = state.disciplines.find((d) => d.id === id);
 
   useEffect(() => {
-    const disciplines = localRepository.getDisciplines();
-    const found = disciplines.find((d) => d.id === id);
-
-    if (!found) {
+    if (!discipline && state.disciplines.length > 0) {
       router.push("/dashboard");
-      return;
     }
+  }, [discipline, state.disciplines, router]);
 
-    setDiscipline(found);
-  }, [id, router]);
-
-
-const handleDeleteUnit = (unitId: string) => {
-  if (!discipline) return;
-
-  deleteUnit(discipline.id, unitId);
-
-  setDiscipline({
-    ...discipline,
-    units: discipline.units.filter(u => u.id !== unitId),
-  });
-};
-
-
+  if (state.loading) {
+    return <p>Carregando...</p>;
+  }
 
   if (!discipline) {
-    return <p>Carregando...</p>;
+    return null;
   }
 
   return (
@@ -64,6 +46,7 @@ const handleDeleteUnit = (unitId: string) => {
           {discipline.units.map((unit) => (
             <li key={unit.id}>
               <strong>{unit.theme}</strong>
+
               <button
                 onClick={() =>
                   router.push(
@@ -73,8 +56,11 @@ const handleDeleteUnit = (unitId: string) => {
               >
                 Ver detalhes
               </button>
-               <button
-                onClick={() => handleDeleteUnit(unit.id)} // Botão para excluir unidade
+
+              <button
+                onClick={() =>
+                  actions.deleteUnit(discipline.id, unit.id)
+                }
               >
                 Excluir
               </button>
