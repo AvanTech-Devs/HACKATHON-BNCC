@@ -5,11 +5,16 @@ import { useParams, useRouter } from "next/navigation";
 import "@/app/styles/disciplines.css";
 import { localRepository } from "@/app/models/repository/localDisciplineRepository";
 import { Discipline } from "@/app/models/types/discipline";
+import { useUserDisciplineViewModel } from "@/app/components/viewmodels/userDisciplineViewModel";
 
 const DisciplinePage = () => {
   const { id } = useParams();
   const router = useRouter();
   const [discipline, setDiscipline] = useState<Discipline | null>(null);
+  
+  // Usando o view model
+  const { deleteUnit, reload } = useUserDisciplineViewModel();
+
 
   useEffect(() => {
     const disciplines = localRepository.getDisciplines();
@@ -22,6 +27,20 @@ const DisciplinePage = () => {
 
     setDiscipline(found);
   }, [id, router]);
+
+
+const handleDeleteUnit = (unitId: string) => {
+  if (!discipline) return;
+
+  deleteUnit(discipline.id, unitId);
+
+  setDiscipline({
+    ...discipline,
+    units: discipline.units.filter(u => u.id !== unitId),
+  });
+};
+
+
 
   if (!discipline) {
     return <p>Carregando...</p>;
@@ -53,6 +72,11 @@ const DisciplinePage = () => {
                 }
               >
                 Ver detalhes
+              </button>
+               <button
+                onClick={() => handleDeleteUnit(unit.id)} // Botão para excluir unidade
+              >
+                Excluir
               </button>
             </li>
           ))}

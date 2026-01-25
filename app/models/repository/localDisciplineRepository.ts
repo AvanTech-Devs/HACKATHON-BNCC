@@ -25,6 +25,18 @@ export const localRepository = {
 
   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
 },
+updateDiscipline(updated: Discipline) {
+  const disciplines = this.getDisciplines();
+
+  const newList = disciplines.map((d) =>
+    d.id === updated.id ? updated : d
+  );
+
+  localStorage.setItem(
+    LOCAL_STORAGE_KEY,
+    JSON.stringify(newList)
+  );
+},
 
 
  getDisciplines: (): Discipline[] => {
