@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Unit } from "@/app/models/types/unit";
 import { localRepository } from "@/app/models/repository/localDisciplineRepository";
 import { localUnitRepository } from "@/app/models/repository/localUnitRepository";
+import { localLogRepository } from "@/app/models/repository/localLogRepository";
 
 export function useUserUnitViewModel(disciplineId: string) {
   const [loading, setLoading] = useState(false);
@@ -35,6 +36,10 @@ export function useUserUnitViewModel(disciplineId: string) {
 
       // 🔗 vínculo com a disciplina
       localRepository.addUnitToDiscipline(disciplineId, newUnit);
+      localLogRepository.addLog(
+  "Aula criada",
+  `Tema: ${theme}`
+);
 
       // 💾 salva a unidade individualmente (detalhes)
       localUnitRepository.saveUnit(newUnit);

@@ -5,6 +5,8 @@ import { localRepository } from "@/app/models/repository/localDisciplineReposito
 import { Discipline } from "@/app/models/types/discipline";
 import { useRouter } from "next/navigation";
 import { logAction } from "@/app/utils/logAction";
+import { localLogRepository } from "@/app/models/repository/localLogRepository";
+import { LogEntry } from "@/app/models/types/logs";
 
 
 
@@ -13,8 +15,8 @@ import { logAction } from "@/app/utils/logAction";
 interface UserDashboardData {
   userName: string;
   credits: number;
-  generationHistory: Array<{ type: string; date: string; time: string }>;
   disciplines: Discipline[];
+  logs: LogEntry[];
 }
 
 export const useUserDashboardViewModel = () => {
@@ -26,18 +28,14 @@ export const useUserDashboardViewModel = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       const storedDisciplines = localRepository.getDisciplines();
+      const generationHistory = localLogRepository.getLogs();
 
       const data: UserDashboardData = {
-        userName: "Prof. João",
-        credits: 260,
-        generationHistory: [
-          { type: "Plano de aula", date: "15/04", time: "10:35" },
-          { type: "Atividade", date: "14/04", time: "15:20" },
-          { type: "Slides de apoio", date: "14/04", time: "09:10" },
-          { type: "Plano de aula", date: "13/04", time: "11:45" },
-        ],
-        disciplines: storedDisciplines,
-      };
+  userName: "Prof. João",
+  credits: 260,
+  logs: generationHistory,
+  disciplines: storedDisciplines,
+};
 
       setDashboardData(data);
     };

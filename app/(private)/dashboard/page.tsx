@@ -32,15 +32,23 @@ const DashboardPage = () => {
           </p>
         </DashboardCard>
 
-        <DashboardCard title="Histórico de Gerações">
-          <ul className="dashboard-list">
-            {dashboardData.generationHistory.map((item, index) => (
-              <li key={index}>
-                {item.type} — {formatDate(item.date)} às {item.time}
-              </li>
-            ))}
-          </ul>
-        </DashboardCard>
+       <DashboardCard title="Atividades Recentes">
+  {dashboardData.logs.length === 0 ? (
+    <p className="dashboard-empty">Nenhuma atividade registrada.</p>
+  ) : (
+    <ul className="dashboard-list">
+      {dashboardData.logs.map((log) => (
+        <li key={log.id}>
+          <strong>{log.action}</strong>
+          {log.description && ` — ${log.description}`}
+          <br />
+          <small>{formatDate(log.createdAt)}</small>
+        </li>
+      ))}
+    </ul>
+  )}
+</DashboardCard>
+
 
         <DashboardCard title="Suas Disciplinas">
           {dashboardData.disciplines.length === 0 ? (

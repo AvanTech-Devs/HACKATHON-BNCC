@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import { Discipline } from "@/app/models/types/discipline";
 import { localRepository } from "@/app/models/repository/localDisciplineRepository";
 
+
+import { localLogRepository } from "@/app/models/repository/localLogRepository";
+
 export function useUserDisciplineViewModel() {
   const [disciplines, setDisciplines] = useState<Discipline[]>([]);
   const [loading, setLoading] = useState(false);
@@ -35,6 +38,10 @@ export function useUserDisciplineViewModel() {
       };
 
       localRepository.saveDiscipline(newDiscipline);
+      localLogRepository.addLog(
+  "Disciplina criada",
+  `Disciplina "${name}" (${grade})`
+);
       setDisciplines((prev) => [...prev, newDiscipline]);
 
       return newDiscipline;
