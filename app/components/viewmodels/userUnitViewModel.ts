@@ -8,6 +8,43 @@ export function useUserUnitViewModel(disciplineId: string) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  /* 🔹 IA: gerar sugestões (on-demand) */
+  const generateSuggestions = async (
+    type: "theme" | "context",
+    discipline: string,
+    grade: string,
+    bnccGuidelines: string
+  ): Promise<string[]> => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/unit-suggestions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type,
+          discipline,
+          grade,
+          bnccGuidelines,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao gerar sugestões");
+      }
+
+      const data = await response.json();
+      return data.suggestions as string[];
+    } catch {
+      setError("Erro ao gerar sugestões");
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* 🔹 Criar aula */
   const createUnit = async (theme: string, context: string) => {
     setLoading(true);
     setError(null);
@@ -34,15 +71,9 @@ export function useUserUnitViewModel(disciplineId: string) {
         createdAt: new Date(data.createdAt),
       };
 
-      // 🔗 vínculo com a disciplina
       localRepository.addUnitToDiscipline(disciplineId, newUnit);
-      localLogRepository.addLog(
-  "Aula criada",
-  `Tema: ${theme}`
-);
-
-      // 💾 salva a unidade individualmente (detalhes)
       localUnitRepository.saveUnit(newUnit);
+      localLogRepository.addLog("Aula criada", `Tema: ${theme}`);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -50,5 +81,10 @@ export function useUserUnitViewModel(disciplineId: string) {
     }
   };
 
-  return { createUnit, loading, error };
+  return {
+    createUnit,
+    generateSuggestions,
+    loading,
+    error,
+  };
 }
