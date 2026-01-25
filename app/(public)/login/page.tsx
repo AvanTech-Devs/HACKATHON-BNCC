@@ -17,7 +17,7 @@ export default function LoginPage() {
       alert("Por favor, preencha todos os campos.");
     }
   };
-
+//comentando
   return (
     <div className="flex flex-col items-center mt-16">
       <h1 className="text-2xl font-bold mb-6">
