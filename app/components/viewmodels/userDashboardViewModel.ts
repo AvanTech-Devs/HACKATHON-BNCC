@@ -8,10 +8,6 @@ import { logAction } from "@/app/utils/logAction";
 import { localLogRepository } from "@/app/models/repository/localLogRepository";
 import { LogEntry } from "@/app/models/types/logs";
 
-
-
-
-
 interface UserDashboardData {
   userName: string;
   credits: number;
@@ -31,11 +27,11 @@ export const useUserDashboardViewModel = () => {
       const generationHistory = localLogRepository.getLogs();
 
       const data: UserDashboardData = {
-  userName: "Prof. João",
-  credits: 260,
-  logs: generationHistory,
-  disciplines: storedDisciplines,
-};
+        userName: "Prof. João",
+        credits: 260,
+        logs: generationHistory,
+        disciplines: storedDisciplines,
+      };
 
       setDashboardData(data);
     };
@@ -64,10 +60,33 @@ export const useUserDashboardViewModel = () => {
     router.push(`/disciplines/${disciplineId}`);
   };
 
+  // 🔹 NOVA FUNÇÃO: Excluir disciplina
+  const onDeleteDiscipline = (disciplineId: string) => {
+    if (!dashboardData) return;
+
+    // Remove a disciplina do repositório local
+    localRepository.deleteDisciplineById(disciplineId);
+
+    // Atualiza os dados do dashboard
+    const updatedDisciplines = dashboardData.disciplines.filter(
+      (discipline) => discipline.id !== disciplineId
+    );
+
+    setDashboardData({
+      ...dashboardData,
+      disciplines: updatedDisciplines,
+    });
+
+    // Registra a ação no log
+    const logDescription = `Disciplina com ID ${disciplineId} foi excluída.`;
+    localLogRepository.addLog("Excluir Disciplina", logDescription);
+  };
+
   return {
     dashboardData,
     onCreateMaterial,
     onCreateDiscipline,
     onViewDisciplineDetails,
+    onDeleteDiscipline,
   };
 };

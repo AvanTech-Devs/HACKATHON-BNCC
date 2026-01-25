@@ -39,6 +39,15 @@ export const localRepository = {
     units: discipline.units ?? [], // ✅ GARANTE SEMPRE UM ARRAY
   }));
 },
+// Exclui uma disciplina específica pelo ID
+  deleteDisciplineById: (disciplineId: string) => {
+    const disciplines = localRepository.getDisciplines();
+    const filteredDisciplines = disciplines.filter(
+      (discipline) => discipline.id !== disciplineId
+    );
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(filteredDisciplines));
+  },
+
 
 
   // Limpa todas as disciplinas do armazenamento local

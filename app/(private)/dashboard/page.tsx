@@ -15,6 +15,7 @@ const DashboardPage = () => {
     onCreateMaterial,
     onCreateDiscipline,
     onViewDisciplineDetails,
+    onDeleteDiscipline,
   } = useUserDashboardViewModel();
 
   if (!dashboardData) {
@@ -32,22 +33,22 @@ const DashboardPage = () => {
           </p>
         </DashboardCard>
 
-       <DashboardCard title="Atividades Recentes">
-  {dashboardData.logs.length === 0 ? (
-    <p className="dashboard-empty">Nenhuma atividade registrada.</p>
-  ) : (
-    <ul className="dashboard-list">
-      {dashboardData.logs.map((log) => (
-        <li key={log.id}>
-          <strong>{log.action}</strong>
-          {log.description && ` — ${log.description}`}
-          <br />
-          <small>{formatDate(log.createdAt)}</small>
-        </li>
-      ))}
-    </ul>
-  )}
-</DashboardCard>
+        <DashboardCard title="Atividades Recentes">
+          {dashboardData.logs.length === 0 ? (
+            <p className="dashboard-empty">Nenhuma atividade registrada.</p>
+          ) : (
+            <ul className="dashboard-list">
+              {dashboardData.logs.map((log) => (
+                <li key={log.id}>
+                  <strong>{log.action}</strong>
+                  {log.description && ` — ${log.description}`}
+                  <br />
+                  <small>{formatDate(log.createdAt)}</small>
+                </li>
+              ))}
+            </ul>
+          )}
+        </DashboardCard>
 
 
         <DashboardCard title="Suas Disciplinas">
@@ -70,6 +71,13 @@ const DashboardPage = () => {
                     }
                   >
                     Ver Detalhes
+                  </button>
+                  {/* Botão para excluir disciplina */}
+                  <button
+                    className="delete-discipline-button"
+                    onClick={() => onDeleteDiscipline(discipline.id)}
+                  >
+                    Excluir
                   </button>
                 </li>
               ))}
