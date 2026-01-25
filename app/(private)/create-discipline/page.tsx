@@ -5,112 +5,119 @@ import "@/app/styles/create-discipline.css";
 import { useRouter } from "next/navigation";
 
 import { useUserDisciplineViewModel } from "@/app/components/viewmodels/userDisciplineViewModel";
+import {
+  EDUCATION_STRUCTURE,
+  EducationLevel,
+} from "@/app/constants/education";
 
 const CreateDisciplinePage = () => {
   const router = useRouter();
-
   const { state, actions } = useUserDisciplineViewModel();
 
-  const [selectedYear, setSelectedYear] = useState("");
-  const [selectedDiscipline, setSelectedDiscipline] = useState("");
+  const [level, setLevel] = useState<EducationLevel | "">("");
+  const [year, setYear] = useState("");
+  const [discipline, setDiscipline] = useState("");
 
-  const years = ["1º Ano", "2º Ano", "3º Ano", "4º Ano", "5º Ano"];
-  const disciplines = ["Português", "Matemática", "História", "Geografia"];
+  const educationData = level ? EDUCATION_STRUCTURE[level] : null;
 
-  const handleConfirmCreation = async () => {
-    if (!selectedYear || !selectedDiscipline) {
-      alert("Por favor, selecione a série/ano e a disciplina.");
-      return;
-    }
-
-    try {
-      const createdDiscipline = await actions.addDiscipline(
-        selectedDiscipline,
-        selectedYear
-      );
-
-      alert(
-        `Disciplina "${createdDiscipline.name}" criada com sucesso!`
-      );
-
-      router.push(`/disciplines/${createdDiscipline.id}`);
-    } catch {
-      alert("Erro ao criar a disciplina. Tente novamente.");
-    }
-  };
-
-  const handleBack = () => {
-    router.push("/disciplines");
-  };
+  
 
   return (
     <div className="create-discipline-container">
       <header className="create-discipline-header">
-        <h1 className="create-discipline-title">
-          Criar Nova Disciplina
-        </h1>
-        <p className="create-discipline-instructions">
-          Preencha os campos abaixo para criar uma nova disciplina.
-        </p>
+        <h1>Criar Nova Disciplina</h1>
+        <p>Selecione o nível de ensino, ano e disciplina.</p>
       </header>
       
 
       <form className="create-discipline-form">
-        {/* Série/Ano */}
+        {/* NÍVEL DE ENSINO */}
         <div className="form-group">
-          <label htmlFor="year">Série/Ano</label>
+          <label>Nível de Ensino</label>
           <select
-            id="year"
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(e.target.value)}
+            value={level}
+            onChange={(e) => {
+              setLevel(e.target.value as EducationLevel);
+              setYear("");
+              setDiscipline("");
+            }}
           >
             <option value="">Selecione</option>
-            {years.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
+            <option value="fundamental">Ensino Fundamental</option>
+            <option value="medio">Ensino Médio</option>
           </select>
         </div>
 
-        {/* Disciplina */}
-        <div className="form-group">
-          <label htmlFor="discipline">Disciplina</label>
-          <select
-            id="discipline"
-            value={selectedDiscipline}
-            onChange={(e) => setSelectedDiscipline(e.target.value)}
-          >
-            <option value="">Selecione</option>
-            {disciplines.map((discipline) => (
-              <option key={discipline} value={discipline}>
-                {discipline}
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* ANO */}
+        {educationData && (
+          <div className="form-group">
+            <label>Ano/Série</label>
+            <select
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
+            >
+              <option value="">Selecione</option>
+              {educationData.years.map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
-        {/* Botões */}
+        {/* DISCIPLINA */}
+        {educationData && (
+          <div className="form-group">
+            <label>Disciplina</label>
+            <select
+              value={discipline}
+              onChange={(e) => setDiscipline(e.target.value)}
+            >
+              <option value="">Selecione</option>
+              {educationData.disciplines.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* BOTÕES */}
         <div className="form-actions">
-          <button
-            type="button"
-            className="form-button primary"
-            onClick={handleConfirmCreation}
-            disabled={state.loading}
-          >
-            {state.loading ? "Criando..." : "✅ Confirmar Criação"}
-          </button>
+         <button
+  type="button"
+  className="form-button primary"
+  disabled={state.loading}
+  onClick={async () => {
+    try {
+      const created = await actions.confirmCreateDiscipline(
+        discipline,
+        educationData!.label,
+        year
+      );
+
+      alert(`Disciplina "${created.name}" criada com sucesso!`);
+      router.push(`/disciplines/${created.id}`);
+    } catch {
+      // erro já está no state.error
+    }
+  }}
+>
+  {state.loading ? "Criando..." : "✅ Confirmar Criação"}
+</button>
+
 
           <button
             type="button"
             className="form-button secondary"
-            onClick={handleBack}
+            onClick={() => router.push("/dashboard")}
           >
             ← Voltar
           </button>
         </div>
 
-        {/* Erro */}
         {state.error && (
           <p className="error-message">{state.error}</p>
         )}
