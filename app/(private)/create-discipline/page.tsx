@@ -2,11 +2,12 @@
 
 import React, { useState } from "react";
 import "@/app/styles/create-discipline.css";
-import { logAction } from "../../utils/logAction";
+import { useUserDisciplineViewModel } from "@/app/components/viewmodels/userDisciplineViewModel";
 import { useRouter } from "next/navigation";
 
 const CreateDisciplinePage = () => {
   const router = useRouter();
+  const { addDiscipline, loading, error } = useUserDisciplineViewModel();
 
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedDiscipline, setSelectedDiscipline] = useState("");
@@ -14,18 +15,27 @@ const CreateDisciplinePage = () => {
   const years = ["1º Ano", "2º Ano", "3º Ano", "4º Ano", "5º Ano"];
   const disciplines = ["Português", "Matemática", "História", "Geografia"];
 
-  const handleConfirmCreation = () => {
-    if (!selectedYear || !selectedDiscipline) {
-      alert("Por favor, selecione a série/ano e a disciplina.");
-      return;
-    }
+const handleConfirmCreation = async () => {
+  if (!selectedYear || !selectedDiscipline) {
+    alert("Por favor, selecione a série/ano e a disciplina.");
+    return;
+  }
 
-    logAction("Criar Nova Disciplina", { year: selectedYear, discipline: selectedDiscipline });
-    console.log(`Disciplina criada: ${selectedDiscipline} para o ano ${selectedYear}`);
-    alert(`Disciplina "${selectedDiscipline}" criada com sucesso para o ano "${selectedYear}"!`);
-    router.push("/disciplines"); // Redireciona para a página de disciplinas
-  };
+  try {
+    const createdDiscipline = await addDiscipline(
+      selectedDiscipline,
+      selectedYear
+    );
 
+    alert(
+      `Disciplina "${createdDiscipline.name}" criada com sucesso!`
+    );
+
+    router.push(`/disciplines/${createdDiscipline.id}`);
+  } catch {
+    alert("Erro ao criar a disciplina. Tente novamente.");
+  }
+};
   const handleBack = () => {
     router.push("/disciplines"); // Redireciona para a página de disciplinas
   };
@@ -80,8 +90,9 @@ const CreateDisciplinePage = () => {
             type="button"
             className="form-button primary"
             onClick={handleConfirmCreation}
+            disabled={loading}
           >
-            ✅ Confirmar Criação
+            {loading ? "Criando..." : "✅ Confirmar Criação"}
           </button>
           <button
             type="button"
@@ -91,6 +102,9 @@ const CreateDisciplinePage = () => {
             ← Voltar
           </button>
         </div>
+
+        {/* Erro */}
+        {error && <p className="error-message">{error}</p>}
       </form>
     </div>
   );

@@ -1,0 +1,25 @@
+.unit-details-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.unit-details-header h1 {
+  margin-bottom: 0.5rem;
+}
+
+.unit-section {
+  margin-top: 2rem;
+}
+
+.unit-text-block {
+  white-space: pre-wrap;
+  background: #f5f5f5;
+  padding: 1rem;
+  border-radius: 6px;
+  font-family: monospace;
+}
+
+.unit-back-button {
+  margin-top: 2rem;
+}
