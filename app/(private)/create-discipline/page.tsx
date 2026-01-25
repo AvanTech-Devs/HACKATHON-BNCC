@@ -53,6 +53,7 @@ const CreateDisciplinePage = () => {
           Preencha os campos abaixo para criar uma nova disciplina.
         </p>
       </header>
+      
 
       <form className="create-discipline-form">
         {/* Série/Ano */}
