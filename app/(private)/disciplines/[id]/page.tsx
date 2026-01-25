@@ -1,30 +1,31 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import "@/app/styles/disciplines.css";
-import { localRepository } from "@/app/models/repository/localDisciplineRepository";
-import { Discipline } from "@/app/models/types/discipline";
+
+import { useUserDisciplineViewModel } from "@/app/components/viewmodels/userDisciplineViewModel";
 
 const DisciplinePage = () => {
   const { id } = useParams();
   const router = useRouter();
-  const [discipline, setDiscipline] = useState<Discipline | null>(null);
+
+  const { state, actions } = useUserDisciplineViewModel();
+
+  const discipline = state.disciplines.find((d) => d.id === id);
 
   useEffect(() => {
-    const disciplines = localRepository.getDisciplines();
-    const found = disciplines.find((d) => d.id === id);
-
-    if (!found) {
+    if (!discipline && state.disciplines.length > 0) {
       router.push("/dashboard");
-      return;
     }
+  }, [discipline, state.disciplines, router]);
 
-    setDiscipline(found);
-  }, [id, router]);
+  if (state.loading) {
+    return <p>Carregando...</p>;
+  }
 
   if (!discipline) {
-    return <p>Carregando...</p>;
+    return null;
   }
 
   return (
@@ -45,6 +46,7 @@ const DisciplinePage = () => {
           {discipline.units.map((unit) => (
             <li key={unit.id}>
               <strong>{unit.theme}</strong>
+
               <button
                 onClick={() =>
                   router.push(
@@ -53,6 +55,14 @@ const DisciplinePage = () => {
                 }
               >
                 Ver detalhes
+              </button>
+
+              <button
+                onClick={() =>
+                  actions.deleteUnit(discipline.id, unit.id)
+                }
+              >
+                Excluir
               </button>
             </li>
           ))}
