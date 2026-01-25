@@ -2,12 +2,14 @@
 
 import React, { useState } from "react";
 import "@/app/styles/create-discipline.css";
-import { useUserDisciplineViewModel } from "@/app/components/viewmodels/userDisciplineViewModel";
 import { useRouter } from "next/navigation";
+
+import { useUserDisciplineViewModel } from "@/app/components/viewmodels/userDisciplineViewModel";
 
 const CreateDisciplinePage = () => {
   const router = useRouter();
-  const { addDiscipline, loading, error } = useUserDisciplineViewModel();
+
+  const { state, actions } = useUserDisciplineViewModel();
 
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedDiscipline, setSelectedDiscipline] = useState("");
@@ -15,35 +17,38 @@ const CreateDisciplinePage = () => {
   const years = ["1º Ano", "2º Ano", "3º Ano", "4º Ano", "5º Ano"];
   const disciplines = ["Português", "Matemática", "História", "Geografia"];
 
-const handleConfirmCreation = async () => {
-  if (!selectedYear || !selectedDiscipline) {
-    alert("Por favor, selecione a série/ano e a disciplina.");
-    return;
-  }
+  const handleConfirmCreation = async () => {
+    if (!selectedYear || !selectedDiscipline) {
+      alert("Por favor, selecione a série/ano e a disciplina.");
+      return;
+    }
 
-  try {
-    const createdDiscipline = await addDiscipline(
-      selectedDiscipline,
-      selectedYear
-    );
+    try {
+      const createdDiscipline = await actions.addDiscipline(
+        selectedDiscipline,
+        selectedYear
+      );
 
-    alert(
-      `Disciplina "${createdDiscipline.name}" criada com sucesso!`
-    );
+      alert(
+        `Disciplina "${createdDiscipline.name}" criada com sucesso!`
+      );
 
-    router.push(`/disciplines/${createdDiscipline.id}`);
-  } catch {
-    alert("Erro ao criar a disciplina. Tente novamente.");
-  }
-};
+      router.push(`/disciplines/${createdDiscipline.id}`);
+    } catch {
+      alert("Erro ao criar a disciplina. Tente novamente.");
+    }
+  };
+
   const handleBack = () => {
-    router.push("/disciplines"); // Redireciona para a página de disciplinas
+    router.push("/disciplines");
   };
 
   return (
     <div className="create-discipline-container">
       <header className="create-discipline-header">
-        <h1 className="create-discipline-title">Criar Nova Disciplina</h1>
+        <h1 className="create-discipline-title">
+          Criar Nova Disciplina
+        </h1>
         <p className="create-discipline-instructions">
           Preencha os campos abaixo para criar uma nova disciplina.
         </p>
@@ -59,8 +64,8 @@ const handleConfirmCreation = async () => {
             onChange={(e) => setSelectedYear(e.target.value)}
           >
             <option value="">Selecione</option>
-            {years.map((year, index) => (
-              <option key={index} value={year}>
+            {years.map((year) => (
+              <option key={year} value={year}>
                 {year}
               </option>
             ))}
@@ -76,8 +81,8 @@ const handleConfirmCreation = async () => {
             onChange={(e) => setSelectedDiscipline(e.target.value)}
           >
             <option value="">Selecione</option>
-            {disciplines.map((discipline, index) => (
-              <option key={index} value={discipline}>
+            {disciplines.map((discipline) => (
+              <option key={discipline} value={discipline}>
                 {discipline}
               </option>
             ))}
@@ -90,10 +95,11 @@ const handleConfirmCreation = async () => {
             type="button"
             className="form-button primary"
             onClick={handleConfirmCreation}
-            disabled={loading}
+            disabled={state.loading}
           >
-            {loading ? "Criando..." : "✅ Confirmar Criação"}
+            {state.loading ? "Criando..." : "✅ Confirmar Criação"}
           </button>
+
           <button
             type="button"
             className="form-button secondary"
@@ -104,7 +110,9 @@ const handleConfirmCreation = async () => {
         </div>
 
         {/* Erro */}
-        {error && <p className="error-message">{error}</p>}
+        {state.error && (
+          <p className="error-message">{state.error}</p>
+        )}
       </form>
     </div>
   );
