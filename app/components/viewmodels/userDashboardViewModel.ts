@@ -1,92 +1,103 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { localRepository } from "@/app/models/repository/localDisciplineRepository";
-import { Discipline } from "@/app/models/types/discipline";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { logAction } from "@/app/utils/logAction";
-import { localLogRepository } from "@/app/models/repository/localLogRepository";
-import { LogEntry } from "@/app/models/types/logs";
 
-interface UserDashboardData {
+import { localRepository } from "@/app/models/repository/localDisciplineRepository";
+import { localLogRepository } from "@/app/models/repository/localLogRepository";
+
+import { Discipline } from "@/app/models/types/discipline";
+import { LogEntry } from "@/app/models/types/logs";
+import { logAction } from "@/app/utils/logAction";
+
+/* =========================
+   DASHBOARD STATE
+========================= */
+export interface DashboardState {
   userName: string;
   credits: number;
   disciplines: Discipline[];
   logs: LogEntry[];
 }
 
-export const useUserDashboardViewModel = () => {
-  const [dashboardData, setDashboardData] =
-    useState<UserDashboardData | null>(null);
+/* =========================
+   DASHBOARD ACTIONS
+========================= */
+export interface DashboardActions {
+  createMaterial: () => void;
+  createDiscipline: () => void;
+  viewDisciplineDetails: (disciplineId: string) => void;
+  deleteDiscipline: (disciplineId: string) => void;
+}
 
+/* =========================
+   VIEWMODEL
+========================= */
+export const useUserDashboardViewModel = (): {
+  state: DashboardState | null;
+  actions: DashboardActions;
+} => {
+  const [state, setState] = useState<DashboardState | null>(null);
   const router = useRouter();
 
+  /* 🔹 LOAD INICIAL */
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      const storedDisciplines = localRepository.getDisciplines();
-      const generationHistory = localLogRepository.getLogs();
-
-      const data: UserDashboardData = {
-        userName: "Prof. João",
-        credits: 260,
-        logs: generationHistory,
-        disciplines: storedDisciplines,
-      };
-
-      setDashboardData(data);
-    };
-
-    fetchDashboardData();
+    setState({
+      userName: "Prof. João",
+      credits: 260,
+      disciplines: localRepository.getDisciplines(),
+      logs: localLogRepository.getLogs(),
+    });
   }, []);
 
-  // 🔹 AÇÃO DO FOOTER
-  const onCreateMaterial = () => {
-    if (!dashboardData) return;
+  /* 🔹 ACTIONS */
+  const actions: DashboardActions = {
+    createMaterial: useCallback(() => {
+      if (!state) return;
 
-    logAction("Criar Material", { user: dashboardData.userName });
-    router.push("/add-material");
-  };
+      logAction("Criar Material", { user: state.userName });
+      router.push("/add-material");
+    }, [state, router]),
 
-  // 🔹 AÇÃO DO DASHBOARD
-  const onCreateDiscipline = () => {
-    if (!dashboardData) return;
+    createDiscipline: useCallback(() => {
+      if (!state) return;
 
-    logAction("Criar Disciplina", { user: dashboardData.userName });
-    router.push("/create-discipline");
-  };
+      logAction("Criar Disciplina", { user: state.userName });
+      router.push("/create-discipline");
+    }, [state, router]),
 
-  const onViewDisciplineDetails = (disciplineId: string) => {
-    logAction("Ver Detalhes da Disciplina", { disciplineId });
-    router.push(`/disciplines/${disciplineId}`);
-  };
+    viewDisciplineDetails: useCallback(
+      (disciplineId: string) => {
+        logAction("Ver Detalhes da Disciplina", { disciplineId });
+        router.push(`/disciplines/${disciplineId}`);
+      },
+      [router]
+    ),
 
-  // 🔹 NOVA FUNÇÃO: Excluir disciplina
-  const onDeleteDiscipline = (disciplineId: string) => {
-    if (!dashboardData) return;
+    deleteDiscipline: useCallback(
+      (disciplineId: string) => {
+        if (!state) return;
 
-    // Remove a disciplina do repositório local
-    localRepository.deleteDisciplineById(disciplineId);
+        localRepository.deleteDisciplineById(disciplineId);
 
-    // Atualiza os dados do dashboard
-    const updatedDisciplines = dashboardData.disciplines.filter(
-      (discipline) => discipline.id !== disciplineId
-    );
+        setState({
+          ...state,
+          disciplines: state.disciplines.filter(
+            (d) => d.id !== disciplineId
+          ),
+        });
 
-    setDashboardData({
-      ...dashboardData,
-      disciplines: updatedDisciplines,
-    });
-
-    // Registra a ação no log
-    const logDescription = `Disciplina com ID ${disciplineId} foi excluída.`;
-    localLogRepository.addLog("Excluir Disciplina", logDescription);
+        localLogRepository.addLog(
+          "Excluir Disciplina",
+          `Disciplina com ID ${disciplineId} foi excluída.`
+        );
+      },
+      [state]
+    ),
   };
 
   return {
-    dashboardData,
-    onCreateMaterial,
-    onCreateDiscipline,
-    onViewDisciplineDetails,
-    onDeleteDiscipline,
+    state,
+    actions,
   };
 };

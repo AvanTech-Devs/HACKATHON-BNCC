@@ -2,43 +2,45 @@
 
 import React from "react";
 import "@/app/styles/dashboard.css";
+
 import { useUserDashboardViewModel } from "../../components/viewmodels/userDashboardViewModel";
+
 import DashboardHeader from "../../components/views/DashboardHeader";
 import DashboardCard from "../../components/views/DashboardCard";
 import DashboardFooter from "../../components/views/DashboardFooter";
+
 import { formatNumber } from "../../utils/formatNumber";
 import { formatDate } from "../../utils/formatDate";
 
 const DashboardPage = () => {
-  const {
-    dashboardData,
-    onCreateMaterial,
-    onCreateDiscipline,
-    onViewDisciplineDetails,
-    onDeleteDiscipline,
-  } = useUserDashboardViewModel();
+  const { state, actions } = useUserDashboardViewModel();
 
-  if (!dashboardData) {
+  if (!state) {
     return <p className="dashboard-container">Carregando...</p>;
   }
 
   return (
     <div className="dashboard-container">
-      <DashboardHeader userName={dashboardData.userName} />
+      {/* 🔹 HEADER */}
+      <DashboardHeader userName={state.userName} />
 
       <div className="dashboard-grid">
+        {/* 🔹 CRÉDITOS */}
         <DashboardCard title="Créditos disponíveis">
           <p className="dashboard-credits">
-            {formatNumber(dashboardData.credits)}
+            {formatNumber(state.credits)}
           </p>
         </DashboardCard>
 
+        {/* 🔹 LOGS */}
         <DashboardCard title="Atividades Recentes">
-          {dashboardData.logs.length === 0 ? (
-            <p className="dashboard-empty">Nenhuma atividade registrada.</p>
+          {state.logs.length === 0 ? (
+            <p className="dashboard-empty">
+              Nenhuma atividade registrada.
+            </p>
           ) : (
             <ul className="dashboard-list">
-              {dashboardData.logs.map((log) => (
+              {state.logs.map((log) => (
                 <li key={log.id}>
                   <strong>{log.action}</strong>
                   {log.description && ` — ${log.description}`}
@@ -50,32 +52,35 @@ const DashboardPage = () => {
           )}
         </DashboardCard>
 
-
+        {/* 🔹 DISCIPLINAS */}
         <DashboardCard title="Suas Disciplinas">
-          {dashboardData.disciplines.length === 0 ? (
+          {state.disciplines.length === 0 ? (
             <p className="dashboard-empty">
               Nenhuma disciplina criada ainda.
             </p>
           ) : (
             <ul className="dashboard-discipline-list">
-              {dashboardData.disciplines.map((discipline) => (
+              {state.disciplines.map((discipline) => (
                 <li key={discipline.id} className="discipline-item">
                   <span>
-                    <strong>{discipline.name}</strong> — {discipline.grade}
+                    <strong>{discipline.name}</strong> —{" "}
+                    {discipline.grade}
                   </span>
 
                   <button
                     className="view-discipline-button"
                     onClick={() =>
-                      onViewDisciplineDetails(discipline.id)
+                      actions.viewDisciplineDetails(discipline.id)
                     }
                   >
                     Ver Detalhes
                   </button>
-                  {/* Botão para excluir disciplina */}
+
                   <button
                     className="delete-discipline-button"
-                    onClick={() => onDeleteDiscipline(discipline.id)}
+                    onClick={() =>
+                      actions.deleteDiscipline(discipline.id)
+                    }
                   >
                     Excluir
                   </button>
@@ -86,15 +91,17 @@ const DashboardPage = () => {
 
           <button
             className="dashboard-button primary"
-            onClick={onCreateDiscipline}
+            onClick={actions.createDiscipline}
           >
             + Criar Nova Disciplina
           </button>
         </DashboardCard>
       </div>
 
-      {/* ✅ Footer usando ação do ViewModel */}
-      <DashboardFooter onCreateMaterial={onCreateMaterial} />
+      {/* 🔹 FOOTER */}
+      <DashboardFooter
+        onCreateMaterial={actions.createMaterial}
+      />
     </div>
   );
 };
