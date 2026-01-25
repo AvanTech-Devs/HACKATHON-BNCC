@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Unit } from "@/app/models/types/unit";
-import { localRepository } from "@/app/models/repository/localRepository";
+import { localRepository } from "@/app/models/repository/localDisciplineRepository";
 import { localUnitRepository } from "@/app/models/repository/localUnitRepository";
 
 export function useUserUnitViewModel(disciplineId: string) {

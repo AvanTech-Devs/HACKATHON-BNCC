@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import "@/app/styles/disciplines.css";
-import { localRepository } from "@/app/models/repository/localRepository";
+import { localRepository } from "@/app/models/repository/localDisciplineRepository";
 import { Discipline } from "@/app/models/types/discipline";
 
 const DisciplinePage = () => {

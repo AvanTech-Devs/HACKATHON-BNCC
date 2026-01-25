@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { localRepository } from "@/app/models/repository/localRepository";
+import { localRepository } from "@/app/models/repository/localDisciplineRepository";
 import { Discipline } from "@/app/models/types/discipline";
 import { useRouter } from "next/navigation";
 import { logAction } from "@/app/utils/logAction";

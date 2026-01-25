@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Discipline } from "@/app/models/types/discipline";
-import { localRepository } from "@/app/models/repository/localRepository";
+import { localRepository } from "@/app/models/repository/localDisciplineRepository";
 
 export function useUserDisciplineViewModel() {
   const [disciplines, setDisciplines] = useState<Discipline[]>([]);
