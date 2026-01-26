@@ -25,6 +25,18 @@ export const localRepository = {
 
   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
 },
+updateDiscipline(updated: Discipline) {
+  const disciplines = this.getDisciplines();
+
+  const newList = disciplines.map((d) =>
+    d.id === updated.id ? updated : d
+  );
+
+  localStorage.setItem(
+    LOCAL_STORAGE_KEY,
+    JSON.stringify(newList)
+  );
+},
 
 
  getDisciplines: (): Discipline[] => {
@@ -39,6 +51,15 @@ export const localRepository = {
     units: discipline.units ?? [], // ✅ GARANTE SEMPRE UM ARRAY
   }));
 },
+// Exclui uma disciplina específica pelo ID
+  deleteDisciplineById: (disciplineId: string) => {
+    const disciplines = localRepository.getDisciplines();
+    const filteredDisciplines = disciplines.filter(
+      (discipline) => discipline.id !== disciplineId
+    );
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(filteredDisciplines));
+  },
+
 
 
   // Limpa todas as disciplinas do armazenamento local

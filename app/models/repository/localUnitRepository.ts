@@ -22,4 +22,10 @@ export const localUnitRepository = {
   getUnitById(unitId: string): Unit | undefined {
     return this.getUnits().find((u) => u.id === unitId);
   },
+   // 🔹 NOVA FUNÇÃO: Excluir unidade por ID
+  deleteUnitById(unitId: string) {
+    const units = this.getUnits();
+    const updatedUnits = units.filter((unit) => unit.id !== unitId);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUnits));
+  },
 };

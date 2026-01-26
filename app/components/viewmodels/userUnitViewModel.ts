@@ -1,49 +1,180 @@
+"use client";
+
 import { useState } from "react";
 import { Unit } from "@/app/models/types/unit";
 import { localRepository } from "@/app/models/repository/localDisciplineRepository";
 import { localUnitRepository } from "@/app/models/repository/localUnitRepository";
+import { localLogRepository } from "@/app/models/repository/localLogRepository";
 
-export function useUserUnitViewModel(disciplineId: string) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+/* =========================
+   STATE
+========================= */
+export interface UnitState {
+  loading: boolean;
+  error: string | null;
+}
 
-  const createUnit = async (theme: string, context: string) => {
-    setLoading(true);
-    setError(null);
+/* =========================
+   ACTIONS
+========================= */
+export interface UnitActions {
+  generateThemeSuggestion: (
+    discipline: string,
+    grade: string,
+    bnccGuidelines: string
+  ) => Promise<string | null>;
 
-    try {
-      const response = await fetch("/api/units", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ theme, context, disciplineId }),
-      });
+  generateContextSuggestion: (
+    discipline: string,
+    grade: string,
+    bnccGuidelines: string
+  ) => Promise<string | null>;
 
-      if (!response.ok) {
-        throw new Error("Erro ao criar a aula.");
+  createUnit: (
+    disciplineId: string,
+    theme: string,
+    context: string
+  ) => Promise<void>;
+}
+
+/* =========================
+   VIEWMODEL
+========================= */
+export function useUserUnitViewModel(): {
+  state: UnitState;
+  actions: UnitActions;
+} {
+  const [state, setState] = useState<UnitState>({
+    loading: false,
+    error: null,
+  });
+
+  const actions: UnitActions = {
+    /* 🔹 IA — Tema */
+    generateThemeSuggestion: async (
+      discipline,
+      grade,
+      bnccGuidelines
+    ) => {
+      setState({ loading: true, error: null });
+
+      try {
+        const response = await fetch("/api/unit-suggestions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "theme",
+            discipline,
+            grade,
+            bnccGuidelines,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error();
+        }
+
+        const data = await response.json();
+        return data.suggestions?.[0] ?? null;
+      } catch {
+        setState((prev) => ({
+          ...prev,
+          error: "Erro ao gerar sugestão de tema",
+        }));
+        return null;
+      } finally {
+        setState((prev) => ({ ...prev, loading: false }));
+      }
+    },
+
+    /* 🔹 IA — Contexto */
+    generateContextSuggestion: async (
+      discipline,
+      grade,
+      bnccGuidelines
+    ) => {
+      setState({ loading: true, error: null });
+
+      try {
+        const response = await fetch("/api/unit-suggestions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "context",
+            discipline,
+            grade,
+            bnccGuidelines,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error();
+        }
+
+        const data = await response.json();
+        return data.suggestions?.[0] ?? null;
+      } catch {
+        setState((prev) => ({
+          ...prev,
+          error: "Erro ao gerar sugestão de contexto",
+        }));
+        return null;
+      } finally {
+        setState((prev) => ({ ...prev, loading: false }));
+      }
+    },
+
+    /* 🔹 Criar Aula */
+    createUnit: async (disciplineId, theme, context) => {
+      if (!theme || !context) {
+        setState((prev) => ({
+          ...prev,
+          error: "Preencha todos os campos.",
+        }));
+        throw new Error("Campos obrigatórios");
       }
 
-      const data = await response.json();
+      setState({ loading: true, error: null });
 
-      const newUnit: Unit = {
-        id: data.id,
-        theme,
-        context,
-        lessonPlan: data.lessonPlan,
-        activity: data.activity,
-        createdAt: new Date(data.createdAt),
-      };
+      try {
+        const response = await fetch("/api/units", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ theme, context, disciplineId }),
+        });
 
-      // 🔗 vínculo com a disciplina
-      localRepository.addUnitToDiscipline(disciplineId, newUnit);
+        if (!response.ok) {
+          throw new Error();
+        }
 
-      // 💾 salva a unidade individualmente (detalhes)
-      localUnitRepository.saveUnit(newUnit);
-    } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
+        const data = await response.json();
+
+        const newUnit: Unit = {
+          id: data.id,
+          theme,
+          context,
+          lessonPlan: data.lessonPlan,
+          activity: data.activity,
+          createdAt: new Date(data.createdAt),
+        };
+
+        localRepository.addUnitToDiscipline(disciplineId, newUnit);
+        localUnitRepository.saveUnit(newUnit);
+        localLogRepository.addLog(
+          "Aula criada",
+          `Tema: ${theme}`
+        );
+      } catch {
+        setState((prev) => ({
+          ...prev,
+          error: "Erro ao criar a aula",
+        }));
+        throw new Error();
+      } finally {
+        setState((prev) => ({ ...prev, loading: false }));
+      }
+    },
   };
 
-  return { createUnit, loading, error };
+  return { state, actions };
 }

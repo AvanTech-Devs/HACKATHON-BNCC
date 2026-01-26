@@ -1,4 +1,6 @@
-export const formatDate = (dateString: string): string => {
-  const [day, month] = dateString.split("/");
-  return `${day.padStart(2, "0")}/${month.padStart(2, "0")}`;
+export const formatDate = (date: Date): string => {
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+
+  return `${day}/${month}`;
 };
