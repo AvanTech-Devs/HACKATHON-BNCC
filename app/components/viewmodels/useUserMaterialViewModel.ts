@@ -139,33 +139,34 @@ ${unit.activity}
 
     /* 📤 Exportar (mock por enquanto) */
    exportMaterial: async (materialId, format) => {
-  const material = localMaterialRepository.getMaterialById(materialId);
-  if (!material) return;
+    const material = localMaterialRepository.getMaterialById(materialId);
+    if (!material) return;
 
-  const response = await fetch("/api/export", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ material, format }),
-  });
+    try {
+      // chama a rota server que gera PDF ou Slides
+      const res = await fetch("/api/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ material, format }),
+      });
 
-  const blob = await response.blob();
+      if (!res.ok) throw new Error("Erro na exportação");
 
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download =
-    format === "PDF"
-      ? `${material.title}.pdf`
-      : `${material.title}.pptx`;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
 
-  a.click();
-  window.URL.revokeObjectURL(url);
+      // baixa automaticamente
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${material.title}.${format === "PDF" ? "pdf" : "pptx"}`;
+      a.click();
+      URL.revokeObjectURL(url);
 
-  localLogRepository.addLog(
-    "Material exportado",
-    `ID: ${materialId} | Formato: ${format}`
-  );
-},
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao exportar material");
+    }
+  },
 
 
 
