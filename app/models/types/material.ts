@@ -1,10 +1,15 @@
+export type MaterialType =
+  | "SLIDES"
+  | "PDF"
+  | "PROVA"
+  | "ATIVIDADE"
+  | "RESUMO";
 
 export interface Material {
-    id: string;
-    title: string;
-    description?: string;
-    type: 'pdf' | 'video' | 'slide' | 'link' | 'image' | 'other';
-    createdAt: Date;
-    updatedAt?: Date;
-    disciplineId?: string;
+  id: string;
+  unitId: string;
+  title: string;
+  type: MaterialType;
+  content: string;      // texto gerado pela IA (base)
+  createdAt: Date;
 }
