@@ -138,19 +138,37 @@ ${unit.activity}
     },
 
     /* 📤 Exportar (mock por enquanto) */
-    exportMaterial: (materialId, format) => {
-      const material =
-        localMaterialRepository.getMaterialById(materialId);
+   exportMaterial: async (materialId, format) => {
+  const material = localMaterialRepository.getMaterialById(materialId);
+  if (!material) return;
 
-      if (!material) return;
+  const response = await fetch("/api/export", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ material, format }),
+  });
 
-      localLogRepository.addLog(
-        "Material exportado",
-        `ID: ${materialId} | Formato: ${format}`
-      );
+  const blob = await response.blob();
 
-      alert(`Exportando material como ${format} (simulação)`);
-    },
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download =
+    format === "PDF"
+      ? `${material.title}.pdf`
+      : `${material.title}.pptx`;
+
+  a.click();
+  window.URL.revokeObjectURL(url);
+
+  localLogRepository.addLog(
+    "Material exportado",
+    `ID: ${materialId} | Formato: ${format}`
+  );
+},
+
+
+
   };
 
   return { state, actions };
