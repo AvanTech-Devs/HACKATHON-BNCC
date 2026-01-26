@@ -83,3 +83,34 @@
 .disciplines-button.primary:hover {
   background-color: #218838;
 }
+.unit-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.unit-buttons button {
+  padding: 0.4rem 0.6rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+/* Botão Ver detalhes */
+.unit-buttons button:nth-child(1) {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Botão Criar material */
+.unit-buttons button:nth-child(2) {
+  background-color: #28a745;
+  color: white;
+}
+
+/* Botão Excluir */
+.unit-buttons button:nth-child(3) {
+  background-color: #dc3545;
+  color: white;
+}

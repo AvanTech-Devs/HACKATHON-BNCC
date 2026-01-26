@@ -7,12 +7,19 @@ import "@/app/styles/disciplines.css";
 import { useUserDisciplineViewModel } from "@/app/components/viewmodels/userDisciplineViewModel";
 
 const DisciplinePage = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
   const { state, actions } = useUserDisciplineViewModel();
 
-  const discipline = state.disciplines.find((d) => d.id === id);
+  const discipline = state.disciplines.find(
+    (d) => d.id === id
+  );
+
+  const recentMaterials =
+    discipline
+      ? actions.getRecentMaterialsByDiscipline(discipline.id)
+      : [];
 
   useEffect(() => {
     if (!discipline && state.disciplines.length > 0) {
@@ -35,6 +42,7 @@ const DisciplinePage = () => {
         <p>Série: {discipline.grade}</p>
       </header>
 
+      {/* 🔹 AULAS */}
       <section className="disciplines-section">
         <h2>Aulas</h2>
 
@@ -43,38 +51,72 @@ const DisciplinePage = () => {
         )}
 
         <ul>
-          {discipline.units.map((unit) => (
-            <li key={unit.id}>
-              <strong>{unit.theme}</strong>
+  {discipline.units.map((unit) => (
+    <li key={unit.id}>
+      <strong>{unit.theme}</strong>
 
-              <button
-                onClick={() =>
-                  router.push(
-                    `/disciplines/${discipline.id}/units/${unit.id}`
-                  )
-                }
-              >
-                Ver detalhes
-              </button>
+      <div className="unit-buttons">
+        <button
+          onClick={() =>
+            router.push(
+              `/disciplines/${discipline.id}/units/${unit.id}`
+            )
+          }
+        >
+          Ver detalhes
+        </button>
 
-              <button
-                onClick={() =>
-                  actions.deleteUnit(discipline.id, unit.id)
-                }
-              >
-                Excluir
-              </button>
-            </li>
-          ))}
-        </ul>
+        {/* 🧠 NOVO BOTÃO */}
+        <button
+          onClick={() =>
+            router.push(
+              `/disciplines/${discipline.id}/units/${unit.id}/materials`
+            )
+          }
+        >
+          Criar material
+        </button>
 
         <button
           onClick={() =>
-            router.push(`/disciplines/${discipline.id}/create-unit`)
+            actions.deleteUnit(discipline.id, unit.id)
+          }
+        >
+          Excluir
+        </button>
+      </div>
+    </li>
+  ))}
+</ul>
+
+
+        <button
+          onClick={() =>
+            router.push(
+              `/disciplines/${discipline.id}/create-unit`
+            )
           }
         >
           + Criar Aula
         </button>
+      </section>
+
+      {/* 🔹 MATERIAIS RECENTES */}
+      <section className="disciplines-section">
+        <h2>Materiais Recentes</h2>
+
+        {recentMaterials.length === 0 && (
+          <p>Nenhum material gerado ainda.</p>
+        )}
+
+        <ul>
+          {recentMaterials.map((material) => (
+            <li key={material.id}>
+              <strong>{material.title}</strong>
+              <span> ({material.type})</span>
+            </li>
+          ))}
+        </ul>
       </section>
     </div>
   );

@@ -5,6 +5,9 @@ import { Discipline } from "@/app/models/types/discipline";
 import { localRepository } from "@/app/models/repository/localDisciplineRepository";
 import { localUnitRepository } from "@/app/models/repository/localUnitRepository";
 import { localLogRepository } from "@/app/models/repository/localLogRepository";
+import { localMaterialRepository } from "@/app/models/repository/localMaterialRepository";
+
+import { Material } from "@/app/models/types/material";
 
 /* =========================
    STATE
@@ -27,6 +30,11 @@ export interface DisciplineActions {
     year: string
   ) => Promise<Discipline>;
   deleteUnit: (disciplineId: string, unitId: string) => void;
+  /* 🔹 NOVO */
+  getRecentMaterialsByDiscipline: (
+    disciplineId: string,
+    limit?: number
+  ) => Material[];
 }
 
 
@@ -59,8 +67,10 @@ export function useUserDisciplineViewModel(): {
   /* 🔹 ACTIONS */
   
 const actions: DisciplineActions = {
+  /* 🔹 LOAD */
   loadDisciplines,
 
+  /* 🔹 CRIAR DISCIPLINA (rápido) */
   addDiscipline: async (name, grade) => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
 
@@ -85,18 +95,18 @@ const actions: DisciplineActions = {
       }));
 
       return newDiscipline;
-    } catch (err) {
+    } catch (error) {
       setState((prev) => ({
         ...prev,
         error: "Erro ao criar a disciplina",
       }));
-      throw err;
+      throw error;
     } finally {
       setState((prev) => ({ ...prev, loading: false }));
     }
   },
 
-  /* ✅ NOVA ACTION: confirmação da criação */
+  /* 🔹 CRIAR DISCIPLINA (confirmação) */
   confirmCreateDiscipline: async (
     discipline,
     levelLabel,
@@ -133,52 +143,83 @@ const actions: DisciplineActions = {
       }));
 
       return newDiscipline;
-    } catch (err) {
+    } catch (error) {
       setState((prev) => ({
         ...prev,
         error: "Erro ao criar a disciplina",
       }));
-      throw err;
+      throw error;
     } finally {
       setState((prev) => ({ ...prev, loading: false }));
     }
   },
 
+  /* 🔹 EXCLUIR UNIDADE (corrigido) */
   deleteUnit: (disciplineId, unitId) => {
-    setState((prev) => ({ ...prev, loading: true, error: null }));
+    setState((prev) => {
+      try {
+        localUnitRepository.deleteUnitById(unitId);
 
-    try {
-      localUnitRepository.deleteUnitById(unitId);
+        const updatedDisciplines = prev.disciplines.map((d) =>
+          d.id === disciplineId
+            ? {
+                ...d,
+                units: d.units.filter((u) => u.id !== unitId),
+              }
+            : d
+        );
 
-      const updatedDisciplines = state.disciplines.map((d) =>
-        d.id === disciplineId
-          ? { ...d, units: d.units.filter((u) => u.id !== unitId) }
-          : d
-      );
+        const disciplineUpdated = updatedDisciplines.find(
+          (d) => d.id === disciplineId
+        );
 
-      localRepository.updateDiscipline(
-        updatedDisciplines.find((d) => d.id === disciplineId)!
-      );
+        if (disciplineUpdated) {
+          localRepository.updateDiscipline(disciplineUpdated);
+        }
 
-      setState((prev) => ({
-        ...prev,
-        disciplines: updatedDisciplines,
-      }));
+        localLogRepository.addLog(
+          "Unidade excluída",
+          `Unidade ${unitId}`
+        );
 
-      localLogRepository.addLog(
-        "Unidade excluída",
-        `Unidade ${unitId}`
-      );
-    } catch {
-      setState((prev) => ({
-        ...prev,
-        error: "Erro ao excluir unidade",
-      }));
-    } finally {
-      setState((prev) => ({ ...prev, loading: false }));
-    }
+        return {
+          ...prev,
+          disciplines: updatedDisciplines,
+          loading: false,
+        };
+      } catch {
+        return {
+          ...prev,
+          loading: false,
+          error: "Erro ao excluir unidade",
+        };
+      }
+    });
+  },
+
+  /* 🔹 MATERIAIS RECENTES DA DISCIPLINA */
+  getRecentMaterialsByDiscipline: (disciplineId, limit = 5) => {
+    const discipline = state.disciplines.find(
+      (d) => d.id === disciplineId
+    );
+
+    if (!discipline) return [];
+
+    const unitIds = discipline.units.map((u) => u.id);
+
+    return localMaterialRepository
+      .getMaterials()
+      .filter((material) =>
+        unitIds.includes(material.unitId)
+      )
+      .sort(
+        (a, b) =>
+          b.createdAt.getTime() - a.createdAt.getTime()
+      )
+      .slice(0, limit);
   },
 };
+
 
 
   return {
