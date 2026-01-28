@@ -282,3 +282,77 @@
   line-height: 1.6;
   margin-bottom: 12px;
 }
+/* ===== DOCUMENT PREVIEW ===== */
+.document-preview {
+  background: #f2f2f2;
+  padding: 24px;
+}
+
+.pdf-pages {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Página A4 real */
+.pdf-page {
+  width: 210mm;
+  height: 297mm;
+  background: white;
+  margin: 0 auto 16px;
+  padding: 25mm 25mm 20mm; /* ↓ padding-bottom menor */
+  box-sizing: border-box;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  position: relative;
+}
+
+
+/* Título */
+.pdf-title h3 {
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  margin: 0;
+}
+
+.pdf-title hr {
+  margin: 10mm 0;
+  border: none;
+  border-top: 0.5px solid #000;
+}
+
+/* Conteúdo */
+.pdf-content {
+  white-space: pre-wrap;
+}
+.pdf-title-line {
+  font-weight: bold;
+  margin: 6mm 0;
+}
+
+.pdf-text {
+  margin: 0 0 5mm 0; /* antes: 6mm */
+}
+
+.pdf-section {
+  font-weight: bold;
+  margin: 6mm 0 3mm; /* antes: 8mm 0 4mm */
+}
+
+.pdf-list {
+  margin: 0 0 4mm 8mm; /* antes: 6mm 10mm */
+}
+
+
+/* Rodapé */
+.pdf-footer {
+  position: absolute;
+  bottom: 15mm; /* antes: 15mm */
+  left: 25mm;
+  right: 25mm;
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: #777;
+}

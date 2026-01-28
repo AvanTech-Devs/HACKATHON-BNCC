@@ -8,7 +8,8 @@ import { parseRichText } from "@/app/utils/parseRichText";
 import { useUserMaterialViewModel } from "@/app/components/viewmodels/useUserMaterialViewModel";
 import { Material } from "@/app/models/types/material";
 import { parseSlides } from "@/app/utils/slidePreview";
-
+import { SlidesPreview } from "@/app/components/views/SlidesPreview";
+import { DocumentPreview } from "@/app/components/views/DocumentPreview";
 
 const MaterialDetailsPage = () => {
   const { id, unitId, materialId } = useParams();
@@ -50,69 +51,41 @@ const slidePreviews = material.type === "SLIDES"
       </section>
 
     <section className="material-content">
-  <h2>Preview dos Slides</h2>
+  {material.type === "SLIDES" && (
+    <SlidesPreview
+      slides={parseSlides(material.content)}
+    />
+  )}
 
-  <div className="slides-workspace">
-    {/* ===== SIDEBAR (miniaturas) ===== */}
-    <aside className="slides-sidebar">
-      {slidePreviews.map((slide, index) => (
-        <div
-          key={index}
-          className={`slide-thumb ${index === activeSlide ? "active" : ""}`}
-          onClick={() => setActiveSlide(index)}
-        >
-          <span className="slide-number">{index + 1}</span>
+  {material.type === "PDF" && (
+   <DocumentPreview
+  title={material.title}
+  content={material.content}
+/>
+  )}
 
-          {slide.type === "cover" ? (
-            <strong>{slide.title}</strong>
-          ) : (
-            <div className="thumb-text">
-  {slide.text
-    .split("\n")
-    .slice(0, 2) // limita linhas na thumb
-    .map((line, i) => (
-      <p key={i}>{parseRichText(line)}</p>
-    ))}
-</div>
+  {material.type === "RESUMO" && (
+    <DocumentPreview
+      title="Resumo"
+      content={material.content}
+    />
+  )}
 
-          )}
-        </div>
-      ))}
-    </aside>
+  {material.type === "ATIVIDADE" && (
+    <DocumentPreview
+      title="Atividade"
+      content={material.content}
+    />
+  )}
 
-    {/* ===== SLIDE PRINCIPAL ===== */}
-    <div className="slide-stage">
-      {(() => {
-        const slide = slidePreviews[activeSlide];
-
-        if (!slide) return null;
-
-        if (slide.type === "cover") {
-          return (
-            <div className="slide slide-cover slide-large">
-              <div className="slide-header" />
-              <h3>{slide.title}</h3>
-              <span className="slide-sub">Tópico</span>
-            </div>
-          );
-        }
-
-        return (
-          <div className="slide slide-content slide-large">
-            <div className="slide-header" />
-            <div className="slide-body">
-              <div className="slide-text">
-                {slide.text.split("\n").map((line, i) => (
-                  <p key={i}>{parseRichText(line)}</p>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
-      })()}
-    </div>
-  </div>
+  {material.type === "PROVA" && (
+    <DocumentPreview
+      title="Prova"
+      content={material.content}
+    />
+  )}
 </section>
+
 
 
 
