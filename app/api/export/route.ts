@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { exportPdf } from "@/app/utils/export/exportPdf";
-import { exportSlides } from "@/app/utils/export/exportSlides";
+import { exportPdf } from "@/app/utils/export/pdf/exportPdf";
+import { exportSlides } from "@/app/utils/export/slides/exportSlides";
 import { Material } from "@/app/models/types/material";
 
 export async function POST(req: NextRequest) {
