@@ -6,6 +6,13 @@ import { localMaterialRepository } from "@/app/models/repository/localMaterialRe
 import { localLogRepository } from "@/app/models/repository/localLogRepository";
 import { localUnitRepository } from "@/app/models/repository/localUnitRepository";
 
+
+/* =========================
+   TYPES
+========================= */
+export type MaterialMode = "CONTENT" | "ACTIVITY";
+
+
 /* =========================
    STATE
 ========================= */
@@ -33,6 +40,19 @@ export interface MaterialActions {
     materialId: string,
     format: "PDF" | "SLIDES"
   ) => void;
+
+   /* 🧠 NOVAS FUNÇÕES */
+  
+
+  getFilteredMaterials: (
+    unitId: string,
+    mode: MaterialMode
+  ) => Material[];
+
+  getAllowedTypesByMode: (
+    mode: MaterialMode
+  ) => MaterialType[];
+
 }
 
 /* =========================
@@ -47,7 +67,31 @@ export function useUserMaterialViewModel(): {
     error: null,
   });
 
+
   const actions: MaterialActions = {
+
+     /* 🧠 Tipos permitidos por modo */
+  getAllowedTypesByMode: (
+    mode: MaterialMode
+  ): MaterialType[] => {
+    return mode === "CONTENT"
+      ? ["SLIDES", "PDF"]
+      : ["RESUMO", "ATIVIDADE", "PROVA"];
+  },
+  /* 🎯 Filtrar materiais exibidos por modo */
+  getFilteredMaterials : (
+    unitId: string,
+    mode: MaterialMode
+  ) => {
+    const materials = actions.getMaterialsByUnit(unitId);
+    const allowedTypes = actions.getAllowedTypesByMode(mode);
+
+    return materials.filter((m) =>
+      allowedTypes.includes(m.type)
+    );
+  },
+
+
     /* 🧠 Gerar material com IA */
    generateMaterial: async (unitId, materialType) => {
   setState({ loading: true, error: null });
