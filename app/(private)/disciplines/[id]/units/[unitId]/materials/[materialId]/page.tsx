@@ -10,6 +10,7 @@ import { Material } from "@/app/models/types/material";
 import { parseSlides, ParsedSlide } from "@/app/utils/slidePreview";
 import { SlidesPreview } from "@/app/components/views/SlidesPreview";
 import { DocumentPreview } from "@/app/components/views/DocumentPreview";
+import { supabaseMaterialRepository } from "@/app/models/repository/supabase/supabaseMaterialRepository";
 
 const MaterialDetailsPage = () => {
   const { id, unitId, materialId } = useParams();
@@ -20,13 +21,30 @@ const MaterialDetailsPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState("");
 
-  useEffect(() => {
+ useEffect(() => {
+  const loadMaterial = async () => {
+    // 1️⃣ tenta no estado
     const found = actions.getMaterialById(materialId as string);
     if (found) {
       setMaterial(found);
       setEditedContent(found.content);
+      return;
     }
-  }, [materialId]);
+
+    // 2️⃣ fallback: busca direto no banco
+    const fromDb =
+      await supabaseMaterialRepository.getMaterialById(
+        materialId as string
+      );
+
+    if (fromDb) {
+      setMaterial(fromDb);
+      setEditedContent(fromDb.content);
+    }
+  };
+
+  loadMaterial();
+}, [materialId]);
 
   if (!material) {
     return <p>Material não encontrado.</p>;

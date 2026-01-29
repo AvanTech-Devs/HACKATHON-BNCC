@@ -1,17 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { Material, MaterialType } from "@/app/models/types/material";
-import { localMaterialRepository } from "@/app/models/repository/local/localMaterialRepository";
-import { localLogRepository } from "@/app/models/repository/local/localLogRepository";
-import { localUnitRepository } from "@/app/models/repository/local/localUnitRepository";
+import { useState, useEffect, useCallback } from "react";
+import { useParams } from "next/navigation";
 
+import { Material, MaterialType } from "@/app/models/types/material";
+import { supabaseMaterialRepository } from "@/app/models/repository/supabase/supabaseMaterialRepository";
+import { supabaseLogRepository } from "@/app/models/repository/supabase/supabaseLogRepository";
+import { supabaseUnitRepository } from "@/app/models/repository/supabase/supabaseUnitRepository";
 
 /* =========================
    TYPES
 ========================= */
 export type MaterialMode = "CONTENT" | "ACTIVITY";
-
 
 /* =========================
    STATE
@@ -19,8 +19,7 @@ export type MaterialMode = "CONTENT" | "ACTIVITY";
 export interface MaterialState {
   loading: boolean;
   error: string | null;
-    materials: Material[];
-
+  materials: Material[];
 }
 
 /* =========================
@@ -28,36 +27,27 @@ export interface MaterialState {
 ========================= */
 export interface MaterialActions {
   generateMaterial: (
-  unitId: string,
-  materialType: MaterialType
-) => Promise<Material | null>;
+    unitId: string,
+    materialType: MaterialType
+  ) => Promise<Material | null>;
 
-  getMaterialsByUnit: (unitId: string) => Material[];
-
-  getMaterialById: (materialId: string) => Material | undefined;
-
-  deleteMaterial: (materialId: string) => void;
+  deleteMaterial: (materialId: string) => Promise<void>;
 
   exportMaterial: (
     materialId: string,
     format: "PDF" | "SLIDES"
-  ) => void;
-
-   /* 🧠 NOVAS FUNÇÕES */
-  
+  ) => Promise<void>;
 
   getFilteredMaterials: (
     unitId: string,
     mode: MaterialMode
   ) => Material[];
 
-  getAllowedTypesByMode: (
-    mode: MaterialMode
-  ) => MaterialType[];
+  getAllowedTypesByMode: (mode: MaterialMode) => MaterialType[];
 
-  updateMaterial: (updatedMaterial: Material) => void;
+  updateMaterial: (updatedMaterial: Material) => Promise<void>;
 
-
+  getMaterialById: (materialId: string) => Material | null;
 }
 
 /* =========================
@@ -67,189 +57,187 @@ export function useUserMaterialViewModel(): {
   state: MaterialState;
   actions: MaterialActions;
 } {
+  const { unitId } = useParams<{ unitId: string }>();
+
   const [state, setState] = useState<MaterialState>({
     loading: false,
     error: null,
-      materials: [],
-
+    materials: [],
   });
 
+  /* =========================
+     LOAD MATERIALS (AUTO)
+  ========================= */
+  const loadMaterialsByUnit = useCallback(async (unitId: string) => {
+    try {
+      setState((prev) => ({ ...prev, loading: true }));
 
-  const actions: MaterialActions = {
+      const materials =
+        await supabaseMaterialRepository.getMaterialsByUnitId(unitId);
 
-     /* 🧠 Tipos permitidos por modo */
-  getAllowedTypesByMode: (
-    mode: MaterialMode
-  ): MaterialType[] => {
-    return mode === "CONTENT"
-      ? ["SLIDES", "PDF"]
-      : ["RESUMO", "ATIVIDADE", "PROVA"];
-  },
-
-
-/* 🔄 Atualizar material */
-updateMaterial: (updatedMaterial: Material) => {
-  try {
-    localMaterialRepository.updateMaterial(updatedMaterial);
-
-    // Atualiza state local
-    setState(prev => ({
-      ...prev,
-      materials: prev.materials.map(m =>
-        m.id === updatedMaterial.id ? updatedMaterial : m
-      ),
-    }));
-
-    // Log
-    localLogRepository.addLog(
-      "Material editado",
-      `ID: ${updatedMaterial.id} | Título: ${updatedMaterial.title}`
-    );
-  } catch (err) {
-    setState(prev => ({ ...prev, error: "Erro ao atualizar material" }));
-    console.error(err);
-  }
-},
-
-
-
-  /* 🎯 Filtrar materiais exibidos por modo */
-  getFilteredMaterials : (
-    unitId: string,
-    mode: MaterialMode
-  ) => {
-    const materials = actions.getMaterialsByUnit(unitId);
-    const allowedTypes = actions.getAllowedTypesByMode(mode);
-
-    return materials.filter((m) =>
-      allowedTypes.includes(m.type)
-    );
-  },
-
-
-    /* 🧠 Gerar material com IA */
-   generateMaterial: async (unitId, materialType) => {
-  setState({ loading: true, error: null, materials: state.materials });
-
-  try {
-    const unit = localUnitRepository.getUnitById(unitId);
-
-    if (!unit) {
-      throw new Error("Aula não encontrada");
+      setState((prev) => ({
+        ...prev,
+        materials,
+        loading: false,
+      }));
+    } catch (err) {
+      console.error(err);
+      setState((prev) => ({
+        ...prev,
+        error: "Erro ao carregar materiais",
+        loading: false,
+      }));
     }
+  }, []);
 
-    // 🧠 CONTEXTO COMPLETO DA AULA
-    const unitContext = `
-Tema da aula:
-${unit.theme}
+  useEffect(() => {
+    if (unitId) {
+      loadMaterialsByUnit(unitId);
+    }
+  }, [unitId, loadMaterialsByUnit]);
 
-Contexto:
-${unit.context}
+  /* =========================
+     ACTIONS
+  ========================= */
+  const actions: MaterialActions = {
+    /* 🧠 Tipos permitidos por modo */
+    getAllowedTypesByMode: (mode) =>
+      mode === "CONTENT"
+        ? ["SLIDES", "PDF"]
+        : ["RESUMO", "ATIVIDADE", "PROVA"],
 
-Plano de aula:
-${unit.lessonPlan}
+    /* 🎯 FILTRO SINCRONO */
+    getFilteredMaterials: (unitId, mode) => {
+      const allowedTypes = actions.getAllowedTypesByMode(mode);
 
-Atividade prevista:
-${unit.activity}
-`;
-
-    const response = await fetch("/api/materials", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        unitTitle: unit.theme,
-        unitContext,
-        materialType,
-      }),
-    });
-
-    if (!response.ok) throw new Error();
-
-    const data = await response.json();
-
-    const material: Material = {
-      id: crypto.randomUUID(),
-      unitId,
-      title: `${materialType} - ${unit.theme}`,
-      type: materialType,
-      content: data.content,
-      createdAt: new Date(),
-    };
-
-    localMaterialRepository.saveMaterial(material);
-
-    localLogRepository.addLog(
-      "Material gerado",
-      `Tipo: ${materialType} | Aula: ${unit.theme}`
-    );
-
-    return material;
-  } catch {
-    setState((prev) => ({
-      ...prev,
-      error: "Erro ao gerar material educacional",
-    }));
-    return null;
-  } finally {
-    setState((prev) => ({ ...prev, loading: false }));
-  }
-},
-
-
-    /* 📚 Materiais da aula */
-    getMaterialsByUnit: (unitId) => {
-      return localMaterialRepository.getMaterialsByUnitId(unitId);
-    },
-
-    /* 🔍 Buscar material por ID */
-    getMaterialById: (materialId) => {
-      return localMaterialRepository.getMaterialById(materialId);
-    },
-
-    /* 🗑️ Excluir */
-    deleteMaterial: (materialId) => {
-      localMaterialRepository.deleteMaterialById(materialId);
-
-      localLogRepository.addLog(
-        "Material excluído",
-        `ID do material: ${materialId}`
+      return state.materials.filter(
+        (m) =>
+          m.unitId === unitId &&
+          allowedTypes.includes(m.type)
       );
     },
 
-    /* 📤 Exportar (mock por enquanto) */
-   exportMaterial: async (materialId, format) => {
-    const material = localMaterialRepository.getMaterialById(materialId);
-    if (!material) return;
+    /* 🔍 Buscar por ID (sincrono) */
+    getMaterialById: (materialId) => {
+      return (
+        state.materials.find((m) => m.id === materialId) ??
+        null
+      );
+    },
 
-    try {
-      // chama a rota server que gera PDF ou Slides
+    /* 🧠 Gerar material */
+    generateMaterial: async (unitId, materialType) => {
+      setState((prev) => ({ ...prev, loading: true }));
+
+      try {
+        const unit =
+          await supabaseUnitRepository.getUnitById(unitId);
+
+        if (!unit) throw new Error();
+
+        const response = await fetch("/api/materials", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            unitTitle: unit.theme,
+            unitContext: unit.context,
+            materialType,
+          }),
+        });
+
+        if (!response.ok) throw new Error();
+
+        const data = await response.json();
+
+        const material: Material = {
+          id: crypto.randomUUID(),
+          unitId,
+          title: `${materialType} - ${unit.theme}`,
+          type: materialType,
+          content: data.content,
+          createdAt: new Date(),
+        };
+
+        await supabaseMaterialRepository.saveMaterial(material);
+
+        setState((prev) => ({
+          ...prev,
+          materials: [material, ...prev.materials],
+        }));
+
+        supabaseLogRepository.addLog(
+          "Material gerado",
+          material.title
+        );
+
+        return material;
+      } catch {
+        setState((prev) => ({
+          ...prev,
+          error: "Erro ao gerar material",
+        }));
+        return null;
+      } finally {
+        setState((prev) => ({ ...prev, loading: false }));
+      }
+    },
+
+    /* 🗑️ Excluir */
+    deleteMaterial: async (materialId) => {
+      await supabaseMaterialRepository.deleteMaterialById(materialId);
+
+      setState((prev) => ({
+        ...prev,
+        materials: prev.materials.filter(
+          (m) => m.id !== materialId
+        ),
+      }));
+
+      supabaseLogRepository.addLog(
+        "Material excluído",
+        materialId
+      );
+    },
+
+    /* ✏️ Atualizar */
+    updateMaterial: async (updatedMaterial) => {
+      await supabaseMaterialRepository.updateMaterial(
+        updatedMaterial
+      );
+
+      setState((prev) => ({
+        ...prev,
+        materials: prev.materials.map((m) =>
+          m.id === updatedMaterial.id
+            ? updatedMaterial
+            : m
+        ),
+      }));
+    },
+
+    /* 📤 Exportar */
+    exportMaterial: async (materialId, format) => {
+      const material =
+        state.materials.find((m) => m.id === materialId);
+      if (!material) return;
+
       const res = await fetch("/api/export", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ material, format }),
       });
 
-      if (!res.ok) throw new Error("Erro na exportação");
+      if (!res.ok) throw new Error();
 
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
 
-      // baixa automaticamente
       const a = document.createElement("a");
       a.href = url;
       a.download = `${material.title}.${format === "PDF" ? "pdf" : "pptx"}`;
       a.click();
       URL.revokeObjectURL(url);
-
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao exportar material");
-    }
-  },
-
-
-
-
+    },
   };
 
   return { state, actions };
