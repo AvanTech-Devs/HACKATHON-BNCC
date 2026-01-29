@@ -22,8 +22,11 @@ create table if not exists disciplines (
 -- ===============================
 -- UNITS
 -- ===============================
+-- garante extensão para gerar UUID
+create extension if not exists "pgcrypto";
+
 create table if not exists units (
-  id uuid primary key,
+  id uuid primary key default gen_random_uuid(), -- 🔥 gera o UUID automaticamente
   discipline_id uuid not null,
   theme text not null,
   context text not null,

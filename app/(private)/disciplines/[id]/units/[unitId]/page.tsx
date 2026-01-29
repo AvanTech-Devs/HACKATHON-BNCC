@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Unit } from "@/app/models/types/unit";
-import { localUnitRepository } from "@/app/models/repository/local/localUnitRepository";
+import { supabaseUnitRepository } from "@/app/models/repository/supabase/supabaseUnitRepository"; 
 
 export default function UnitDetailsPage() {
   const { unitId } = useParams();
@@ -13,12 +13,15 @@ export default function UnitDetailsPage() {
   const [activityInput, setActivityInput] = useState("");
 
   useEffect(() => {
-    const foundUnit = localUnitRepository.getUnitById(unitId as string);
-    if (foundUnit) {
-      setUnit(foundUnit);
-      setLessonPlanInput(foundUnit.lessonPlan);
-      setActivityInput(foundUnit.activity);
-    }
+    const fetchUnit = async () => {
+      const foundUnit = await supabaseUnitRepository.getUnitById(unitId as string);
+      if (foundUnit) {
+        setUnit(foundUnit);
+        setLessonPlanInput(foundUnit.lessonPlan);
+        setActivityInput(foundUnit.activity);
+      }
+    };
+    fetchUnit();
   }, [unitId]);
 
   if (!unit) {
@@ -34,8 +37,8 @@ export default function UnitDetailsPage() {
       activity: activityInput,
     };
 
-    localUnitRepository.deleteUnitById(unit.id); // remove antiga
-    localUnitRepository.saveUnit(updatedUnit);   // salva atualizada
+    supabaseUnitRepository.deleteUnitById(unit.id); // remove antiga
+    supabaseUnitRepository.saveUnit(unit.id, updatedUnit);   // salva atualizada
     setUnit(updatedUnit);
     setIsEditing(false);
   };
