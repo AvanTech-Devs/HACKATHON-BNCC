@@ -85,7 +85,7 @@ const SelectMaterialModal: FC<SelectMaterialModalProps> = ({
 export default SelectMaterialModal;
 
 /* =========================
-   STYLES INLINE
+   STYLES INLINE – PADRÃO DASHBOARD
 ========================= */
 const styles: { [key: string]: React.CSSProperties } = {
   overlay: {
@@ -98,13 +98,13 @@ const styles: { [key: string]: React.CSSProperties } = {
     zIndex: 9999,
   },
   modal: {
-    background: "#111",
-    color: "#fff",
+    background: "#ffffff",       // igual ao card do dashboard
+    color: "#111827",            // texto principal
     padding: "24px 32px",
     borderRadius: 12,
     minWidth: 280,
     textAlign: "center",
-    boxShadow: "0 10px 40px rgba(0, 0, 0, 0.4)",
+    boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)", // mais suave, igual ao dashboard
     display: "flex",
     flexDirection: "column",
     gap: 16,
@@ -112,9 +112,9 @@ const styles: { [key: string]: React.CSSProperties } = {
   select: {
     padding: "8px 12px",
     borderRadius: 6,
-    border: "1px solid #555",
-    background: "#222",
-    color: "#fff",
+    border: "1px solid #e5e7eb", // mesma borda do dashboard
+    background: "#f3f4f6",        // leve cinza do fundo do container
+    color: "#111827",
     fontSize: 14,
     marginTop: 8,
   },
@@ -122,18 +122,24 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: "flex",
     justifyContent: "space-between",
     marginTop: 16,
+    gap: 8,
   },
   button: {
     padding: "8px 16px",
-    borderRadius: 6,
+    borderRadius: 8,
     border: "none",
     cursor: "pointer",
     fontWeight: 600,
-    backgroundColor: "#4ade80",
-    color: "#111",
+    backgroundColor: "#1e3a8a",   // cor primaria
+    color: "#ffffff",             // branco
+    transition: "background-color 0.2s ease",
+  },
+  buttonHover: {
+    backgroundColor: "#1e40af",   // hover primario
   },
   buttonDisabled: {
-    backgroundColor: "#555",
+    backgroundColor: "#e5e7eb",  // cinza claro
+    color: "#9ca3af",            // texto cinza
     cursor: "not-allowed",
   },
 };

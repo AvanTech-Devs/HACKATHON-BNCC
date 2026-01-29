@@ -10,14 +10,12 @@ const DisciplinePage = () => {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [showUnitModal, setShowUnitModal] = useState(false);
-const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
-const [materialMode, setMaterialMode] = useState<"content" | "activity" | null>(null);
+  const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
+  const [materialMode, setMaterialMode] = useState<"content" | "activity" | null>(null);
 
   const { state, actions } = useUserDisciplineViewModel();
 
-  const discipline = state.disciplines.find(
-    (d) => d.id === id
-  );
+  const discipline = state.disciplines.find((d) => d.id === id);
 
   const recentContentMaterials = discipline
     ? actions.getRecentContentMaterials(discipline.id)
@@ -26,12 +24,12 @@ const [materialMode, setMaterialMode] = useState<"content" | "activity" | null>(
   const recentActivityMaterials = discipline
     ? actions.getRecentActivityMaterials(discipline.id)
     : [];
-    const handleOpenCreate = (mode: "content" | "activity") => {
-  setMaterialMode(mode);
-  setSelectedUnitId(null);
-  setShowUnitModal(true);
-};
 
+  const handleOpenCreate = (mode: "content" | "activity") => {
+    setMaterialMode(mode);
+    setSelectedUnitId(null);
+    setShowUnitModal(true);
+  };
 
   useEffect(() => {
     if (!discipline && state.disciplines.length > 0) {
@@ -43,9 +41,7 @@ const [materialMode, setMaterialMode] = useState<"content" | "activity" | null>(
     return <p>Carregando...</p>;
   }
 
-  if (!discipline) {
-    return null;
-  }
+  if (!discipline) return null;
 
   return (
     <div className="disciplines-container">
@@ -79,12 +75,9 @@ const [materialMode, setMaterialMode] = useState<"content" | "activity" | null>(
                     className="delete-button"
                     onClick={(e) => {
                       e.stopPropagation();
-
-                      const confirmDelete = confirm(
-                        `Deseja excluir a aula "${unit.theme}"?`
-                      );
-
-                      if (confirmDelete) {
+                      if (
+                        confirm(`Deseja excluir a aula "${unit.theme}"?`)
+                      ) {
                         actions.deleteUnit(discipline.id, unit.id);
                       }
                     }}
@@ -97,121 +90,122 @@ const [materialMode, setMaterialMode] = useState<"content" | "activity" | null>(
           )}
 
           <button
+            className="dashboard-button primary"
             onClick={() =>
-              router.push(
-                `/disciplines/${discipline.id}/create-unit`
-              )
+              router.push(`/disciplines/${discipline.id}/create-unit`)
             }
           >
             + Criar Aula
           </button>
         </div>
 
+        {/* 📄 CARD PDF & SLIDES */}
+        <div className="discipline-card">
+          <h2>📄 PDFs & Slides</h2>
 
-       {/* 📄 CARD PDF & SLIDES */}
-<div className="discipline-card">
-  <h2>📄 PDFs & Slides</h2>
+          {recentContentMaterials.length === 0 ? (
+            <p>Nenhum material recente.</p>
+          ) : (
+            <ul>
+              {recentContentMaterials.map((m) => (
+                <li
+                  key={m.id}
+                  className="clickable"
+                  onClick={() =>
+                    router.push(
+                      `/disciplines/${discipline.id}/units/${m.unitId}/materials/${m.id}`
+                    )
+                  }
+                >
+                  {m.title} ({m.type})
+                </li>
+              ))}
+            </ul>
+          )}
 
-  {recentContentMaterials.length === 0 ? (
-    <p>Nenhum material recente.</p>
-  ) : (
-    <ul>
-      {recentContentMaterials.map((m) => (
-        <li
-          key={m.id}
-          className="clickable"
-          onClick={() =>
-            router.push(
-              `/disciplines/${discipline.id}/units/${m.unitId}/materials/${m.id}`
-            )
-          }
-        >
-          {m.title} ({m.type})
-        </li>
-      ))}
-    </ul>
-  )}
-
-  <button
-    onClick={() => handleOpenCreate("content")}
-    disabled={discipline.units.length === 0}
-  >
-    Criar Material
-  </button>
-</div>
-
+          <button
+            className="dashboard-button primary"
+            onClick={() => handleOpenCreate("content")}
+          >
+            Criar Material
+          </button>
+        </div>
 
         {/* 📝 CARD ATIVIDADES */}
-<div className="discipline-card">
-  <h2>📝 Atividades & Avaliações</h2>
+        <div className="discipline-card">
+          <h2>📝 Atividades & Avaliações</h2>
 
-  {recentActivityMaterials.length === 0 ? (
-    <p>Nenhuma atividade recente.</p>
-  ) : (
-    <ul>
-      {recentActivityMaterials.map((m) => (
-        <li
-          key={m.id}
-          className="clickable"
-          onClick={() =>
-            router.push(
-              `/disciplines/${discipline.id}/units/${m.unitId}/materials/${m.id}`
-            )
-          }
-        >
-          {m.title} ({m.type})
-        </li>
-      ))}
-    </ul>
-  )}
+          {recentActivityMaterials.length === 0 ? (
+            <p>Nenhuma atividade recente.</p>
+          ) : (
+            <ul>
+              {recentActivityMaterials.map((m) => (
+                <li
+                  key={m.id}
+                  className="clickable"
+                  onClick={() =>
+                    router.push(
+                      `/disciplines/${discipline.id}/units/${m.unitId}/materials/${m.id}`
+                    )
+                  }
+                >
+                  {m.title} ({m.type})
+                </li>
+              ))}
+            </ul>
+          )}
 
-  <button
-    onClick={() => handleOpenCreate("activity")}
-    disabled={discipline.units.length === 0}
-  >
-    Criar Atividade
-  </button>
-</div>
-
+          <button
+            className="dashboard-button primary"
+            onClick={() => handleOpenCreate("activity")}
+          >
+            Criar Atividade
+          </button>
+        </div>
       </section>
+
+      {/* MODAL */}
       {showUnitModal && (
-  <div className="modal-overlay">
-    <div className="modal">
-      <h3>Selecione a aula</h3>
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Selecione a aula</h3>
 
-      <select
-        value={selectedUnitId ?? ""}
-        onChange={(e) => setSelectedUnitId(e.target.value)}
-      >
-        <option value="">Escolha uma aula</option>
-        {discipline.units.map((unit) => (
-          <option key={unit.id} value={unit.id}>
-            {unit.theme}
-          </option>
-        ))}
-      </select>
+            <select
+              value={selectedUnitId ?? ""}
+              onChange={(e) => setSelectedUnitId(e.target.value)}
+            >
+              <option value="">Escolha uma aula</option>
+              {discipline.units.map((unit) => (
+                <option key={unit.id} value={unit.id}>
+                  {unit.theme}
+                </option>
+              ))}
+            </select>
 
-      <div className="modal-actions">
-        <button onClick={() => setShowUnitModal(false)}>
-          Cancelar
-        </button>
+            <div className="modal-actions">
+              <button
+                className="dashboard-button"
+                onClick={() => setShowUnitModal(false)}
+              >
+                Cancelar
+              </button>
 
-        <button
-          disabled={!selectedUnitId}
-          onClick={() => {
-            router.push(
-              `/disciplines/${discipline.id}/units/${selectedUnitId}/materials?mode=${materialMode}`
-            );
-            setShowUnitModal(false);
-          }}
-        >
-          Confirmar
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
+              <button
+                className="dashboard-button primary"
+                disabled={!selectedUnitId}
+                onClick={() => {
+                  router.push(
+                    `/disciplines/${discipline.id}/units/${selectedUnitId}/materials?mode=${materialMode}`
+                  );
+                  setShowUnitModal(false);
+                }}
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -146,29 +146,26 @@
 .discipline-card button {
   width: 100%;
 }
+
+
+/* ================================
+   OVERLAY DO MODAL
+================================ */
 .modal-overlay {
   position: fixed;
-  inset: 0;
+  inset: 0; /* top:0; right:0; bottom:0; left:0 */
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 9999;
+  padding: 1rem; /* garante espaçamento em telas pequenas */
+  overflow-y: auto; /* scroll se o modal for maior que a tela */
 }
 
-.modal {
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  width: 320px;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 15px;
-}
+/* =========================
+   MODAL OVERLAY
+========================= */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -177,15 +174,114 @@
   align-items: center;
   justify-content: center;
   z-index: 9999;
+  padding: 1rem;
 }
 
+/* =========================
+   MODAL BOX
+========================= */
 .modal {
   background: #fff;
-  padding: 24px;
-  border-radius: 8px;
+  padding: 2rem;
+  border-radius: 12px;
   text-align: center;
-  min-width: 280px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
 }
+
+/* =========================
+   CUSTOM SELECT
+========================= */
+.custom-select {
+  position: relative;
+  width: 100%;
+}
+
+.select-button {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.select-button.selected {
+  font-weight: 600;
+}
+
+.select-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  margin-top: 4px;
+  z-index: 100;
+  list-style: none;
+  padding: 0;
+}
+
+.select-options li {
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+}
+
+.select-options li:hover {
+  background: #f3f4f6;
+}
+
+/* =========================
+   MODAL ACTIONS
+========================= */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.dashboard-button {
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.dashboard-button.primary {
+  background-color: #1e3a8a;
+  color: white;
+}
+
+.dashboard-button.primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dashboard-button:hover:not(:disabled) {
+  filter: brightness(0.9);
+}
+
+.dashboard-button:not(.primary) {
+  background-color: #f3f4f6;
+  color: #111827;
+  border: 1px solid #d1d5db;
+}
+
 
 .spinner {
   margin: 16px auto;

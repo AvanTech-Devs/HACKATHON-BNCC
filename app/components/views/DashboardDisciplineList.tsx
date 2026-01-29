@@ -8,43 +8,61 @@ export interface DashboardDisciplineListProps {
   onCreate: () => void;
 }
 
-const DashboardDisciplineList: FC<
-  DashboardDisciplineListProps
-> = ({ disciplines, onView, onDelete, onCreate }) => {
-  return (
-    <>
-      {disciplines.length === 0 && (
+const DashboardDisciplineList: FC<DashboardDisciplineListProps> = ({
+  disciplines,
+  onView,
+  onDelete,
+  onCreate,
+}) => {
+  if (disciplines.length === 0) {
+    return (
+      <>
         <p className="dashboard-empty">
           Nenhuma disciplina criada ainda.
         </p>
-      )}
 
-      {disciplines.length > 0 && (
-        <ul className="dashboard-discipline-list">
-          {disciplines.map((discipline) => (
-            <li key={discipline.id} className="discipline-item">
-              <span>
-                <strong>{discipline.name}</strong> —{" "}
+        <button
+          className="dashboard-button primary"
+          onClick={onCreate}
+        >
+          + Criar Nova Disciplina
+        </button>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className="dashboard-discipline-grid">
+        {disciplines.map((discipline) => (
+          <div key={discipline.id} className="discipline-card">
+            <div>
+              <h3 className="discipline-card-title">
+                {discipline.name}
+              </h3>
+              <p className="discipline-card-grade">
                 {discipline.grade}
-              </span>
+              </p>
+            </div>
 
+            <div className="discipline-card-actions">
               <button
-                className="view-discipline-button"
+                className="discipline-view"
                 onClick={() => onView(discipline.id)}
               >
-                Ver Detalhes
+                Ver
               </button>
 
               <button
-                className="delete-discipline-button"
+                className="discipline-delete"
                 onClick={() => onDelete(discipline.id)}
               >
                 Excluir
               </button>
-            </li>
-          ))}
-        </ul>
-      )}
+            </div>
+          </div>
+        ))}
+      </div>
 
       <button
         className="dashboard-button primary"

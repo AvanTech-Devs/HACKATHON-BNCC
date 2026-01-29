@@ -1,77 +1,139 @@
+/* ================================
+   LOGIN – ESTILO ACADÊMICO MODERNO
+   Público: professores / ambiente institucional
+   ================================ */
+
+:root {
+  --primary: #1e3a8a;       /* azul institucional */
+  --primary-hover: #1e40af;
+  --background: #f3f4f6;
+  --card-bg: #ffffff;
+  --text-main: #111827;
+  --text-muted: #6b7280;
+  --border: #d1d5db;
+  --focus: #2563eb;
+}
+
+/* Reset básico */
+* {
+  box-sizing: border-box;
+}
+
+/* Container principal */
 .login-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #dcfce7, #86efac);
+  background: linear-gradient(135deg, #f8fafc, #e5e7eb);
+  padding: 1rem;
+  font-family: "Inter", "Roboto", system-ui, sans-serif;
 }
 
+/* Card */
 .login-card {
-  background-color: #ffffff;
   width: 100%;
-  max-width: 400px;
-  padding: 2rem;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  max-width: 420px;
+  background-color: var(--card-bg);
+  padding: 2.2rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
 }
 
+/* Títulos */
 .login-title {
-  font-size: 1.8rem;
-  font-weight: bold;
+  font-size: 1.7rem;
+  font-weight: 700;
   text-align: center;
-  color: #16a34a;
-  margin-bottom: 0.5rem;
+  color: var(--primary);
+  margin-bottom: 0.4rem;
 }
 
 .login-subtitle {
+  font-size: 0.95rem;
   text-align: center;
-  color: #6b7280;
+  color: var(--text-muted);
   margin-bottom: 2rem;
 }
 
+/* Formulário */
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 1.3rem;
 }
 
+/* Campos */
 .login-field {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.35rem;
 }
 
 .login-label {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
   color: #374151;
 }
 
+/* Inputs */
 .login-input {
-  padding: 0.7rem;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
+  padding: 0.7rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
   font-size: 0.95rem;
+  background-color: #f9fafb;
+  color: var(--text-main);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.login-input::placeholder {
+  color: #9ca3af;
 }
 
 .login-input:focus {
   outline: none;
-  border-color: #22c55e;
-  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3);
+  border-color: var(--focus);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  background-color: #ffffff;
 }
 
+/* Botão */
 .login-button {
-  margin-top: 1rem;
+  margin-top: 1.2rem;
   padding: 0.8rem;
-  border-radius: 8px;
+  border-radius: 6px;
   border: none;
-  background-color: #22c55e;
+  background-color: var(--primary);
   color: #ffffff;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .login-button:hover {
-  background-color: #16a34a;
+  background-color: var(--primary-hover);
+}
+
+.login-button:active {
+  transform: scale(0.98);
+}
+
+/* Estados desabilitados */
+.login-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Responsividade */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 1.6rem;
+  }
+
+  .login-title {
+    font-size: 1.5rem;
+  }
 }
