@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { Unit } from "@/app/models/types/unit";
-import { localRepository } from "@/app/models/repository/localDisciplineRepository";
-import { localUnitRepository } from "@/app/models/repository/localUnitRepository";
-import { localLogRepository } from "@/app/models/repository/localLogRepository";
+import { localRepository } from "@/app/models/repository/local/localDisciplineRepository";
+import { localUnitRepository } from "@/app/models/repository/local/localUnitRepository";
+import { localLogRepository } from "@/app/models/repository/local/localLogRepository";
 
 /* =========================
    STATE

@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { Material, MaterialType } from "@/app/models/types/material";
-import { localMaterialRepository } from "@/app/models/repository/localMaterialRepository";
-import { localLogRepository } from "@/app/models/repository/localLogRepository";
-import { localUnitRepository } from "@/app/models/repository/localUnitRepository";
+import { localMaterialRepository } from "@/app/models/repository/local/localMaterialRepository";
+import { localLogRepository } from "@/app/models/repository/local/localLogRepository";
+import { localUnitRepository } from "@/app/models/repository/local/localUnitRepository";
 
 
 /* =========================

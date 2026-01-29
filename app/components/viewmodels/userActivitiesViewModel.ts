@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Activity } from "@/app/models/types/activity";
 import { localActivityRepository } from "@/app/models/repository/localActivityRepository";
-import { localLogRepository } from "@/app/models/repository/localLogRepository";
+import { localLogRepository } from "@/app/models/repository/local/localLogRepository";
 
 /* =========================
    STATE

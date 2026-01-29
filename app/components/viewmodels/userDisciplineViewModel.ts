@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Discipline } from "@/app/models/types/discipline";
-import { localRepository } from "@/app/models/repository/localDisciplineRepository";
-import { localUnitRepository } from "@/app/models/repository/localUnitRepository";
-import { localLogRepository } from "@/app/models/repository/localLogRepository";
-import { localMaterialRepository } from "@/app/models/repository/localMaterialRepository";
+import { localRepository } from "@/app/models/repository/local/localDisciplineRepository";
+import { localUnitRepository } from "@/app/models/repository/local/localUnitRepository";
+import { localLogRepository } from "@/app/models/repository/local/localLogRepository";
+import { localMaterialRepository } from "@/app/models/repository/local/localMaterialRepository";
 
 import { Material } from "@/app/models/types/material";
 export type MaterialMode = "CONTENT" | "ACTIVITY";

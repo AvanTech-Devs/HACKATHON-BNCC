@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Unit } from "@/app/models/types/unit";
-import { localUnitRepository } from "@/app/models/repository/localUnitRepository";
+import { localUnitRepository } from "@/app/models/repository/local/localUnitRepository";
 
 export default function UnitDetailsPage() {
   const { unitId } = useParams();

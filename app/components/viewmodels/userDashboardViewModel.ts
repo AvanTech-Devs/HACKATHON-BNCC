@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
-import { localRepository } from "@/app/models/repository/localDisciplineRepository";
-import { localLogRepository } from "@/app/models/repository/localLogRepository";
+import { localRepository } from "@/app/models/repository/local/localDisciplineRepository";
+import { localLogRepository } from "@/app/models/repository/local/localLogRepository";
 
 import { Discipline } from "@/app/models/types/discipline";
 import { LogEntry } from "@/app/models/types/logs";

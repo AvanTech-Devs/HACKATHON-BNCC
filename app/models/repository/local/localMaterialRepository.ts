@@ -1,4 +1,4 @@
-import { Material } from "../types/material";
+import { Material } from "../../types/material";
 
 const STORAGE_KEY = "materials";
 
