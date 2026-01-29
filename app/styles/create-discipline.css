@@ -1,71 +1,131 @@
+/* ===============================
+   CONTAINER GERAL
+=============================== */
+
 .create-discipline-container {
+  min-height: 100vh;
+  background: #f5f7fb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 2rem;
-  font-family: Arial, sans-serif;
 }
+
+/* ===============================
+   CARD PRINCIPAL
+=============================== */
+
+.create-discipline-form {
+  background: #ffffff;
+  width: 100%;
+  max-width: 520px;
+  padding: 2rem;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+}
+
+/* ===============================
+   HEADER
+=============================== */
 
 .create-discipline-header {
   text-align: center;
   margin-bottom: 2rem;
 }
 
-.create-discipline-title {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
+.create-discipline-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111827;
 }
 
-.create-discipline-instructions {
-  font-size: 1.2rem;
-  color: #555;
+.create-discipline-header p {
+  margin-top: 0.5rem;
+  color: #6b7280;
+  font-size: 0.95rem;
 }
 
-.create-discipline-form {
-  max-width: 500px;
-  margin: 0 auto;
-}
+/* ===============================
+   FORMULÁRIO
+=============================== */
 
 .form-group {
-  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.25rem;
 }
 
-label {
-  display: block;
-  font-weight: bold;
+.form-group label {
+  font-weight: 600;
   margin-bottom: 0.5rem;
+  color: #374151;
 }
 
-select {
-  width: 100%;
-  padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+.form-group select {
+  padding: 0.75rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 0.95rem;
+  background-color: #fff;
+  transition: border-color 0.2s ease;
 }
+
+.form-group select:focus {
+  outline: none;
+  border-color: #22c55e;
+}
+
+/* ===============================
+   BOTÕES
+=============================== */
 
 .form-actions {
   display: flex;
-  justify-content: space-between;
+  gap: 1rem;
   margin-top: 2rem;
 }
 
 .form-button {
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  border: none;
-  border-radius: 5px;
+  flex: 1;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
 }
 
 .form-button.primary {
-  background-color: #28a745;
-  color: white;
+  background: #22c55e;
+  color: #ffffff;
+}
+
+.form-button.primary:hover {
+  background: #16a34a;
+}
+
+.form-button.primary:disabled {
+  background: #86efac;
+  cursor: not-allowed;
 }
 
 .form-button.secondary {
-  background-color: #6c757d;
-  color: white;
+  background: #e5e7eb;
+  color: #111827;
 }
 
-.form-button:hover {
-  opacity: 0.9;
+.form-button.secondary:hover {
+  background: #d1d5db;
+}
+
+/* ===============================
+   ERRO
+=============================== */
+
+.error-message {
+  margin-top: 1rem;
+  color: #dc2626;
+  font-size: 0.9rem;
+  text-align: center;
 }
