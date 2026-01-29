@@ -1,83 +1,107 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
+import {
+  useParams,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
+
 import "@/app/styles/materials.css";
 
-import { useUserMaterialViewModel } from "@/app/components/viewmodels/useUserMaterialViewModel";
-import { Material, MaterialType } from "@/app/models/types/material";
+import {
+  useUserMaterialViewModel,
+  MaterialMode,
+} from "@/app/components/viewmodels/useUserMaterialViewModel";
+
+import LoadingGenerate from "@/app/components/modals/LoadingGenerate";
 
 const MaterialsPage = () => {
-  const { id, unitId } = useParams();
+  const { id, unitId } = useParams<{
+    id: string;
+    unitId: string;
+  }>();
+
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const mode: MaterialMode =
+    searchParams.get("mode") === "activity"
+      ? "ACTIVITY"
+      : "CONTENT";
 
   const { state, actions } = useUserMaterialViewModel();
 
-  const [materials, setMaterials] = useState<Material[]>(
-    actions.getMaterialsByUnit(unitId as string)
+  const materials = actions.getFilteredMaterials(unitId, mode);
+  const allowedTypes = actions.getAllowedTypesByMode(mode);
+
+  /* =========================
+     LOADING STATE
+  ========================= */
+  const [showLoading, setShowLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState(
+    "Gerando conteúdo..."
   );
-
-  /* 🔄 Atualiza lista ao carregar */
-  useEffect(() => {
-    setMaterials(actions.getMaterialsByUnit(unitId as string));
-  }, [unitId]);
-
-  /* 🧠 Gerar material com IA */
-  const handleGenerateMaterial = async (type: MaterialType) => {
-    const material = await actions.generateMaterial(
-  unitId as string,
-  type
-);
-
-
-    if (material) {
-      setMaterials(actions.getMaterialsByUnit(unitId as string));
-    }
-  };
-
-  /* 🗑️ Excluir material */
-  const handleDeleteMaterial = (materialId: string) => {
-    actions.deleteMaterial(materialId);
-    setMaterials(actions.getMaterialsByUnit(unitId as string));
-  };
-
-  if (state.loading) {
-    return <p>Gerando material...</p>;
-  }
 
   return (
     <div className="materials-container">
       <header>
-        <h1>Materiais da Aula</h1>
-        <button onClick={() => router.back()}>Voltar</button>
+        <h1>
+          {mode === "CONTENT"
+            ? "Materiais Didáticos"
+            : "Atividades e Avaliações"}
+        </h1>
+
+        <button onClick={() => router.back()}>
+          Voltar
+        </button>
       </header>
 
-      {state.error && <p className="error">{state.error}</p>}
+      {state.error && <p>{state.error}</p>}
 
+      {/* =========================
+          AÇÕES
+      ========================= */}
       <section className="materials-actions">
         <h2>Gerar com IA</h2>
 
-        <button onClick={() => handleGenerateMaterial("SLIDES")}>
-          Gerar Slides
-        </button>
+        {allowedTypes.map((type) => (
+          <button
+            key={type}
+            disabled={state.loading}
+            onClick={async () => {
+              setShowLoading(true);
+              setLoadingMessage("Gerando material com IA...");
 
-        <button onClick={() => handleGenerateMaterial("PDF")}>
-          Gerar PDF
-        </button>
+              const result =
+                await actions.generateMaterial(unitId, type);
 
-        <button onClick={() => handleGenerateMaterial("RESUMO")}>
-          Gerar Resumo
-        </button>
+              if (result) {
+                setLoadingMessage(
+                  "Material gerado com sucesso!"
+                );
+              } else {
+                setLoadingMessage(
+                  "Erro ao gerar material."
+                );
+              }
 
-        <button onClick={() => handleGenerateMaterial("ATIVIDADE")}>
-          Gerar Atividade
-        </button>
-
-        <button onClick={() => handleGenerateMaterial("PROVA")}>
-          Gerar Prova
-        </button>
+              // pequeno delay para UX
+              setTimeout(() => {
+                setShowLoading(false);
+                setLoadingMessage("");
+                router.refresh();
+              }, 1200);
+            }}
+          >
+            Gerar {type}
+          </button>
+        ))}
       </section>
 
+      {/* =========================
+          LISTA
+      ========================= */}
       <section className="materials-list">
         <h2>Materiais Criados</h2>
 
@@ -86,32 +110,37 @@ const MaterialsPage = () => {
         )}
 
         <ul>
-          {materials.map((material) => (
-            <li key={material.id}>
-              <strong>{material.title}</strong>
-              <span>Tipo: {material.type}</span>
+          {materials.map((m) => (
+            <li key={m.id}>
+              <strong>{m.title}</strong>
+              <span>{m.type}</span>
 
-              <div className="materials-buttons">
-                <button
-                  onClick={() =>
-                    router.push(
-                      `/disciplines/${id}/units/${unitId}/materials/${material.id}`
-                    )
-                  }
-                >
-                  Ver
-                </button>
+              <button
+                onClick={() =>
+                  router.push(
+                    `/disciplines/${id}/units/${unitId}/materials/${m.id}`
+                  )
+                }
+              >
+                Ver
+              </button>
 
-                <button
-                  onClick={() => handleDeleteMaterial(material.id)}
-                >
-                  Excluir
-                </button>
-              </div>
+              <button
+                onClick={() => actions.deleteMaterial(m.id)}
+              >
+                Excluir
+              </button>
             </li>
           ))}
         </ul>
       </section>
+
+      {/* =========================
+          LOADING MODAL
+      ========================= */}
+      {showLoading && (
+        <LoadingGenerate message={loadingMessage} />
+      )}
     </div>
   );
 };

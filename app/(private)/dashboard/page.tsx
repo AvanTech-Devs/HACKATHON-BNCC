@@ -1,43 +1,77 @@
 "use client";
 
-import React from "react";
+import { useState, FC } from "react";
 import "@/app/styles/dashboard.css";
 
-import { useUserDashboardViewModel } from "../../components/viewmodels/userDashboardViewModel";
+import {
+  useUserDashboardViewModel,
+  DashboardState,
+  DashboardActions,
+} from "@/app/components/viewmodels/userDashboardViewModel";
 
-import DashboardHeader from "../../components/views/DashboardHeader";
-import DashboardCard from "../../components/views/DashboardCard";
-import DashboardFooter from "../../components/views/DashboardFooter";
+import DashboardHeader from "@/app/components/views/DashboardHeader";
+import DashboardCard from "@/app/components/views/DashboardCard";
+import DashboardDisciplineList from "@/app/components/views/DashboardDisciplineList";
 
-import { formatNumber } from "../../utils/formatNumber";
-import { formatDate } from "../../utils/formatDate";
+import SelectMaterialModal from "@/app/components/modals/SelectMaterialModal";
 
-const DashboardPage = () => {
-  const { state, actions } = useUserDashboardViewModel();
+import { formatNumber } from "@/app/utils/formatNumber";
+import { formatDate } from "@/app/utils/formatDate";
+
+const DashboardPage: FC = () => {
+  const {
+    state,
+    actions,
+  }: {
+    state: DashboardState | null;
+    actions: DashboardActions;
+  } = useUserDashboardViewModel();
+
+  /* =========================
+     ESTADO SELEÇÃO MATERIAL
+  ========================= */
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedDisciplineId, setSelectedDisciplineId] = useState<string>("");
+  const [selectedUnitId, setSelectedUnitId] = useState<string>("");
 
   if (!state) {
     return <p className="dashboard-container">Carregando...</p>;
   }
 
+  const handleCreateMaterial = () => {
+    setShowCreateModal(true);
+  };
+
+  const handleConfirmCreate = () => {
+    if (!selectedDisciplineId || !selectedUnitId) return;
+
+    window.location.href = `/disciplines/${selectedDisciplineId}/units/${selectedUnitId}/materials?mode=content`;
+  };
+
   return (
     <div className="dashboard-container">
-      {/* 🔹 HEADER */}
-      <DashboardHeader userName={state.userName} />
+      <DashboardHeader
+        userName={state.userName}
+        onCreateMaterial={handleCreateMaterial}
+      />
 
       <div className="dashboard-grid">
-        {/* 🔹 CRÉDITOS */}
-        <DashboardCard title="Créditos disponíveis">
-          <p className="dashboard-credits">
-            {formatNumber(state.credits)}
-          </p>
-        </DashboardCard>
+        <div className="dashboard-top-row">
+          <DashboardCard title="Créditos disponíveis" area="credits">
+            <p className="dashboard-credits">{formatNumber(state.credits)}</p>
+          </DashboardCard>
 
-        {/* 🔹 LOGS */}
-        <DashboardCard title="Atividades Recentes">
+          <button
+            className="dashboard-button primary dashboard-create-material"
+            onClick={handleCreateMaterial}
+          >
+            <p id="textButtonCreate">+ Criar Novo Material</p>
+          </button>
+        </div>
+
+        <DashboardCard title="Atividades Recentes" scrollable area="logs">
           {state.logs.length === 0 ? (
-            <p className="dashboard-empty">
-              Nenhuma atividade registrada.
-            </p>
+            <p className="dashboard-empty">Nenhuma atividade registrada.</p>
           ) : (
             <ul className="dashboard-list">
               {state.logs.map((log) => (
@@ -52,56 +86,30 @@ const DashboardPage = () => {
           )}
         </DashboardCard>
 
-        {/* 🔹 DISCIPLINAS */}
-        <DashboardCard title="Suas Disciplinas">
-          {state.disciplines.length === 0 ? (
-            <p className="dashboard-empty">
-              Nenhuma disciplina criada ainda.
-            </p>
-          ) : (
-            <ul className="dashboard-discipline-list">
-              {state.disciplines.map((discipline) => (
-                <li key={discipline.id} className="discipline-item">
-                  <span>
-                    <strong>{discipline.name}</strong> —{" "}
-                    {discipline.grade}
-                  </span>
-
-                  <button
-                    className="view-discipline-button"
-                    onClick={() =>
-                      actions.viewDisciplineDetails(discipline.id)
-                    }
-                  >
-                    Ver Detalhes
-                  </button>
-
-                  <button
-                    className="delete-discipline-button"
-                    onClick={() =>
-                      actions.deleteDiscipline(discipline.id)
-                    }
-                  >
-                    Excluir
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <button
-            className="dashboard-button primary"
-            onClick={actions.createDiscipline}
-          >
-            + Criar Nova Disciplina
-          </button>
+        <DashboardCard title="Suas Disciplinas" area="disciplines">
+          <DashboardDisciplineList
+            disciplines={state.disciplines}
+            onView={actions.viewDisciplineDetails}
+            onDelete={actions.deleteDiscipline}
+            onCreate={actions.createDiscipline}
+          />
         </DashboardCard>
       </div>
 
-      {/* 🔹 FOOTER */}
-      <DashboardFooter
-        onCreateMaterial={actions.createMaterial}
-      />
+      {/* =========================
+          MODAL DE SELEÇÃO
+      ========================= */}
+      {showCreateModal && (
+        <SelectMaterialModal
+          disciplines={state.disciplines}
+          selectedDisciplineId={selectedDisciplineId}
+          setSelectedDisciplineId={setSelectedDisciplineId}
+          selectedUnitId={selectedUnitId}
+          setSelectedUnitId={setSelectedUnitId}
+          onCancel={() => setShowCreateModal(false)}
+          onConfirm={handleConfirmCreate}
+        />
+      )}
     </div>
   );
 };

@@ -1,42 +1,58 @@
-"use client";
+import { FC } from "react";
+import { Discipline } from "@/app/models/types/discipline";
 
-import React from "react";
-import { useRouter } from "next/navigation";
-
-interface DashboardDisciplineListProps {
-  disciplines: string[];
-  onCreateDiscipline: () => void;
+export interface DashboardDisciplineListProps {
+  disciplines: Discipline[];
+  onView: (id: Discipline["id"]) => void;
+  onDelete: (id: Discipline["id"]) => void;
+  onCreate: () => void;
 }
 
-const DashboardDisciplineList: React.FC<DashboardDisciplineListProps> = ({
-  disciplines,
-  onCreateDiscipline,
-}) => {
-  const router = useRouter();
-
-  const handleDisciplineClick = (discipline: string) => {
-    if (discipline === "Matemática") {
-      router.push("/disciplines");
-    } else {
-      alert(`A página para a disciplina "${discipline}" ainda não está disponível.`);
-    }
-  };
+const DashboardDisciplineList: FC<
+  DashboardDisciplineListProps
+> = ({ disciplines, onView, onDelete, onCreate }) => {
+  if (disciplines.length === 0) {
+    return (
+      <p className="dashboard-empty">
+        Nenhuma disciplina criada ainda.
+      </p>
+    );
+  }
 
   return (
-    <div className="dashboard-discipline-list">
-      {disciplines.map((discipline, index) => (
-        <button
-          key={index}
-          className="dashboard-button"
-          onClick={() => handleDisciplineClick(discipline)}
-        >
-          {discipline}
-        </button>
-      ))}
-      <button className="dashboard-button primary" onClick={onCreateDiscipline}>
-        + Criar Disciplina
+    <>
+      <ul className="dashboard-discipline-list">
+        {disciplines.map((discipline) => (
+          <li key={discipline.id} className="discipline-item">
+            <span>
+              <strong>{discipline.name}</strong> —{" "}
+              {discipline.grade}
+            </span>
+
+            <button
+              className="view-discipline-button"
+              onClick={() => onView(discipline.id)}
+            >
+              Ver Detalhes
+            </button>
+
+            <button
+              className="delete-discipline-button"
+              onClick={() => onDelete(discipline.id)}
+            >
+              Excluir
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      <button
+        className="dashboard-button primary"
+        onClick={onCreate}
+      >
+        + Criar Nova Disciplina
       </button>
-    </div>
+    </>
   );
 };
 

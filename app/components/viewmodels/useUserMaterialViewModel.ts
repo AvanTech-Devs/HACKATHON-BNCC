@@ -6,12 +6,21 @@ import { localMaterialRepository } from "@/app/models/repository/localMaterialRe
 import { localLogRepository } from "@/app/models/repository/localLogRepository";
 import { localUnitRepository } from "@/app/models/repository/localUnitRepository";
 
+
+/* =========================
+   TYPES
+========================= */
+export type MaterialMode = "CONTENT" | "ACTIVITY";
+
+
 /* =========================
    STATE
 ========================= */
 export interface MaterialState {
   loading: boolean;
   error: string | null;
+    materials: Material[];
+
 }
 
 /* =========================
@@ -33,6 +42,19 @@ export interface MaterialActions {
     materialId: string,
     format: "PDF" | "SLIDES"
   ) => void;
+
+   /* 🧠 NOVAS FUNÇÕES */
+  
+
+  getFilteredMaterials: (
+    unitId: string,
+    mode: MaterialMode
+  ) => Material[];
+
+  getAllowedTypesByMode: (
+    mode: MaterialMode
+  ) => MaterialType[];
+
 }
 
 /* =========================
@@ -45,12 +67,38 @@ export function useUserMaterialViewModel(): {
   const [state, setState] = useState<MaterialState>({
     loading: false,
     error: null,
+      materials: [],
+
   });
 
+
   const actions: MaterialActions = {
+
+     /* 🧠 Tipos permitidos por modo */
+  getAllowedTypesByMode: (
+    mode: MaterialMode
+  ): MaterialType[] => {
+    return mode === "CONTENT"
+      ? ["SLIDES", "PDF"]
+      : ["RESUMO", "ATIVIDADE", "PROVA"];
+  },
+  /* 🎯 Filtrar materiais exibidos por modo */
+  getFilteredMaterials : (
+    unitId: string,
+    mode: MaterialMode
+  ) => {
+    const materials = actions.getMaterialsByUnit(unitId);
+    const allowedTypes = actions.getAllowedTypesByMode(mode);
+
+    return materials.filter((m) =>
+      allowedTypes.includes(m.type)
+    );
+  },
+
+
     /* 🧠 Gerar material com IA */
    generateMaterial: async (unitId, materialType) => {
-  setState({ loading: true, error: null });
+  setState({ loading: true, error: null, materials: state.materials });
 
   try {
     const unit = localUnitRepository.getUnitById(unitId);
@@ -138,19 +186,39 @@ ${unit.activity}
     },
 
     /* 📤 Exportar (mock por enquanto) */
-    exportMaterial: (materialId, format) => {
-      const material =
-        localMaterialRepository.getMaterialById(materialId);
+   exportMaterial: async (materialId, format) => {
+    const material = localMaterialRepository.getMaterialById(materialId);
+    if (!material) return;
 
-      if (!material) return;
+    try {
+      // chama a rota server que gera PDF ou Slides
+      const res = await fetch("/api/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ material, format }),
+      });
 
-      localLogRepository.addLog(
-        "Material exportado",
-        `ID: ${materialId} | Formato: ${format}`
-      );
+      if (!res.ok) throw new Error("Erro na exportação");
 
-      alert(`Exportando material como ${format} (simulação)`);
-    },
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+
+      // baixa automaticamente
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${material.title}.${format === "PDF" ? "pdf" : "pptx"}`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao exportar material");
+    }
+  },
+
+
+
+
   };
 
   return { state, actions };
