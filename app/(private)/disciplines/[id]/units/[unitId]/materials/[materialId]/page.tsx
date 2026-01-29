@@ -66,21 +66,24 @@ const slidePreviews = material.type === "SLIDES"
 
   {material.type === "RESUMO" && (
     <DocumentPreview
-      title="Resumo"
+        title={material.title}
+
       content={material.content}
     />
   )}
 
   {material.type === "ATIVIDADE" && (
     <DocumentPreview
-      title="Atividade"
+        title={material.title}
+
       content={material.content}
     />
   )}
 
   {material.type === "PROVA" && (
     <DocumentPreview
-      title="Prova"
+        title={material.title}
+
       content={material.content}
     />
   )}
