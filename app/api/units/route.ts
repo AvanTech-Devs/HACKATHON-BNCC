@@ -23,6 +23,7 @@ Tema da aula: ${theme}
 Contexto: ${context}
 
 O plano deve conter obrigatoriamente:
+
 1. Identificação da aula
 2. Objetivo geral
 3. Objetivos específicos
