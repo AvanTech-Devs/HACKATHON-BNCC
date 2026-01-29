@@ -3,59 +3,71 @@
 import { useState } from "react";
 import { parseRichText } from "@/app/utils/parseRichText";
 import { ParsedSlide } from "@/app/utils/slidePreview";
-
-type Props = {
+type SlidesPreviewProps = {
   slides: ParsedSlide[];
+  editable?: boolean;                // modo edição
+  onChange?: (updatedSlides: ParsedSlide[]) => void; // callback ao editar
 };
 
-export function SlidesPreview({ slides }: Props) {
+export function SlidesPreview({ slides, editable = false, onChange }: SlidesPreviewProps) {
   const [activeSlide, setActiveSlide] = useState(0);
+  const [localSlides, setLocalSlides] = useState(slides);
 
-  if (!slides.length) {
-    return <p>Nenhum slide gerado.</p>;
-  }
+  const handleTextChange = (index: number, newText: string) => {
+    const updated = [...localSlides];
+    const currentSlide = updated[index];
+    if (currentSlide.type === "content") {
+      updated[index] = { ...currentSlide, text: newText };
+    }
+    setLocalSlides(updated);
+    onChange?.(updated); // informa MaterialDetailsPage
+  };
+
+  if (!slides.length) return <p>Nenhum slide gerado.</p>;
 
   return (
     <>
       <h2>Preview dos Slides</h2>
-
       <div className="slides-workspace">
-        {/* SIDEBAR */}
         <aside className="slides-sidebar">
-          {slides.map((slide, index) => (
-            <div
-              key={index}
-              className={`slide-thumb ${index === activeSlide ? "active" : ""}`}
-              onClick={() => setActiveSlide(index)}
-            >
-              <span className="slide-number">{index + 1}</span>
+  {localSlides.map((slide, index) => (
+    <div
+      key={index}
+      className={`slide-thumb ${index === activeSlide ? "active" : ""}`}
+      onClick={() => setActiveSlide(index)}
+    >
+      <span className="slide-number">{index + 1}</span>
+      {slide.type === "cover" ? (
+        <strong>{slide.title}</strong>
+      ) : (
+        <div className="thumb-text">
+          {slide.text
+            .split("\n")
+            .slice(0, 2)
+            .map((line, i) => (
+              <p key={i}>{parseRichText(line)}</p>
+            ))}
+        </div>
+      )}
+    </div>
+  ))}
+</aside>
 
-              {slide.type === "cover" ? (
-                <strong>{slide.title}</strong>
-              ) : (
-                <div className="thumb-text">
-                  {slide.text
-                    .split("\n")
-                    .slice(0, 2)
-                    .map((line, i) => (
-                      <p key={i}>{parseRichText(line)}</p>
-                    ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </aside>
 
-        {/* SLIDE PRINCIPAL */}
         <div className="slide-stage">
-          {renderSlide(slides[activeSlide])}
+          {renderSlide(localSlides[activeSlide], editable, handleTextChange, activeSlide)}
         </div>
       </div>
     </>
   );
 }
 
-function renderSlide(slide: ParsedSlide) {
+function renderSlide(
+  slide: ParsedSlide,
+  editable: boolean,
+  onChange?: (index: number, newText: string) => void,
+  slideIndex?: number
+) {
   if (!slide) return null;
 
   if (slide.type === "cover") {
@@ -72,11 +84,21 @@ function renderSlide(slide: ParsedSlide) {
     <div className="slide slide-content slide-large">
       <div className="slide-header" />
       <div className="slide-body">
-        <div className="slide-text">
-          {slide.text.split("\n").map((line, i) => (
-            <p key={i}>{parseRichText(line)}</p>
-          ))}
-        </div>
+        {editable ? (
+          <textarea
+            value={slide.text}
+            onChange={(e) => onChange?.(slideIndex!, e.target.value)}
+            style={{ width: "100%", height: "100%", fontFamily: "inherit" }}
+          />
+        ) : (
+          <div className="slide-text">
+            {slide.text
+              .split("\n")
+              .map((line, i) => (
+                <p key={i}>{parseRichText(line)}</p>
+              ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -45,6 +45,19 @@ export const localMaterialRepository = {
       (m) => m.unitId === unitId
     );
   },
+  /* =========================
+   UPDATE
+========================= */
+updateMaterial(updatedMaterial: Material) {
+  const materials = this.getMaterials();
+  const index = materials.findIndex(m => m.id === updatedMaterial.id);
+
+  if (index === -1) return;
+
+  materials[index] = { ...updatedMaterial };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(materials));
+},
+
 
   /* =========================
      DELETE

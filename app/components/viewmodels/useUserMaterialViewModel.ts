@@ -55,6 +55,9 @@ export interface MaterialActions {
     mode: MaterialMode
   ) => MaterialType[];
 
+  updateMaterial: (updatedMaterial: Material) => void;
+
+
 }
 
 /* =========================
@@ -82,6 +85,34 @@ export function useUserMaterialViewModel(): {
       ? ["SLIDES", "PDF"]
       : ["RESUMO", "ATIVIDADE", "PROVA"];
   },
+
+
+/* 🔄 Atualizar material */
+updateMaterial: (updatedMaterial: Material) => {
+  try {
+    localMaterialRepository.updateMaterial(updatedMaterial);
+
+    // Atualiza state local
+    setState(prev => ({
+      ...prev,
+      materials: prev.materials.map(m =>
+        m.id === updatedMaterial.id ? updatedMaterial : m
+      ),
+    }));
+
+    // Log
+    localLogRepository.addLog(
+      "Material editado",
+      `ID: ${updatedMaterial.id} | Título: ${updatedMaterial.title}`
+    );
+  } catch (err) {
+    setState(prev => ({ ...prev, error: "Erro ao atualizar material" }));
+    console.error(err);
+  }
+},
+
+
+
   /* 🎯 Filtrar materiais exibidos por modo */
   getFilteredMaterials : (
     unitId: string,
