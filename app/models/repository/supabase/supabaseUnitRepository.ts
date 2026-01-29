@@ -23,23 +23,20 @@ export const supabaseUnitRepository = {
     }));
   },
 
-  async saveUnit(unit: Unit): Promise<void> {
-    const { error } = await db.from("units").insert([
-      {
-        id: unit.id,
-        theme: unit.theme,
-        context: unit.context,
-        lesson_plan: unit.lessonPlan,
-        activity: unit.activity,
-        created_at: unit.createdAt,
-      },
-    ]);
+  async saveUnit(disciplineId: string, unit: Unit) {
+  const { error } = await db.from("units").insert({
+    id: unit.id,
+    discipline_id: disciplineId,
+    theme: unit.theme,
+    context: unit.context,
+    lesson_plan: unit.lessonPlan,
+    activity: unit.activity,
+    created_at: unit.createdAt,
+  });
 
-    if (error) {
-      console.error("Erro ao salvar unit:", error);
-      throw error;
-    }
-  },
+  if (error) throw error;
+},
+
 
   async getUnitById(unitId: string): Promise<Unit | null> {
     const { data, error } = await db

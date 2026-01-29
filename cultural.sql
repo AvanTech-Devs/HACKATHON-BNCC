@@ -5,13 +5,14 @@ create extension if not exists "uuid-ossp";
 
 -- ===============================
 -- SCHEMA
+--create schema if not exists hackton;
 -- ===============================
-create schema if not exists hackton;
+
 
 -- ===============================
 -- DISCIPLINES
 -- ===============================
-create table if not exists hackton.disciplines (
+create table if not exists disciplines (
   id uuid primary key,
   name text not null,
   grade text not null,
@@ -21,7 +22,7 @@ create table if not exists hackton.disciplines (
 -- ===============================
 -- UNITS
 -- ===============================
-create table if not exists hackton.units (
+create table if not exists units (
   id uuid primary key,
   discipline_id uuid not null,
   theme text not null,
@@ -32,14 +33,14 @@ create table if not exists hackton.units (
 
   constraint fk_units_discipline
     foreign key (discipline_id)
-    references hackton.disciplines (id)
+    references disciplines (id)
     on delete cascade
 );
 
 -- ===============================
 -- MATERIALS
 -- ===============================
-create table if not exists hackton.materials (
+create table if not exists materials (
   id uuid primary key,
   unit_id uuid not null,
   title text not null,
@@ -49,7 +50,7 @@ create table if not exists hackton.materials (
 
   constraint fk_materials_unit
     foreign key (unit_id)
-    references hackton.units (id)
+    references units (id)
     on delete cascade,
 
   constraint chk_material_type
@@ -59,7 +60,7 @@ create table if not exists hackton.materials (
 -- ===============================
 -- SYSTEM LOGS
 -- ===============================
-create table if not exists hackton.system_logs (
+create table if not exists system_logs (
   id uuid primary key,
   action text not null,
   description text,
@@ -70,41 +71,41 @@ create table if not exists hackton.system_logs (
 -- INDEXES (PERFORMANCE)
 -- ===============================
 create index if not exists idx_units_discipline_id
-  on hackton.units (discipline_id);
+  on units (discipline_id);
 
 create index if not exists idx_materials_unit_id
-  on hackton.materials (unit_id);
+  on materials (unit_id);
 
 create index if not exists idx_logs_created_at
-  on hackton.system_logs (created_at desc);
+  on system_logs (created_at desc);
 
 -- ===============================
 -- ROW LEVEL SECURITY (RLS)
 -- ===============================
-alter table hackton.disciplines enable row level security;
-alter table hackton.units enable row level security;
-alter table hackton.materials enable row level security;
-alter table hackton.system_logs enable row level security;
+alter table disciplines enable row level security;
+alter table units enable row level security;
+alter table materials enable row level security;
+alter table system_logs enable row level security;
 
 -- ===============================
 -- POLICIES (DEV / MVP)
 -- ===============================
 create policy "allow all disciplines"
-on hackton.disciplines
+on disciplines
 for all
 using (true);
 
 create policy "allow all units"
-on hackton.units
+on units
 for all
 using (true);
 
 create policy "allow all materials"
-on hackton.materials
+on materials
 for all
 using (true);
 
 create policy "allow all system logs"
-on hackton.system_logs
+on system_logs
 for all
 using (true);

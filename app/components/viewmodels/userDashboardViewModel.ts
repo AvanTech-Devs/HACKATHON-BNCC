@@ -3,12 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
-import { localRepository } from "@/app/models/repository/local/localDisciplineRepository";
-import { localLogRepository } from "@/app/models/repository/local/localLogRepository";
-
 import { Discipline } from "@/app/models/types/discipline";
 import { LogEntry } from "@/app/models/types/logs";
-import { logAction } from "@/app/utils/logAction";
+
+import { supabaseDisciplineRepository } from "@/app/models/repository/supabase/supabaseDiciplineRepository";
+import { supabaseLogRepository } from "@/app/models/repository/supabase/supabaseLogRepository";
 
 /* =========================
    DASHBOARD STATE
@@ -18,6 +17,8 @@ export interface DashboardState {
   credits: number;
   disciplines: Discipline[];
   logs: LogEntry[];
+  loading: boolean;
+  error: string | null;
 }
 
 /* =========================
@@ -27,7 +28,7 @@ export interface DashboardActions {
   createMaterial: () => void;
   createDiscipline: () => void;
   viewDisciplineDetails: (disciplineId: string) => void;
-  deleteDiscipline: (disciplineId: string) => void;
+  deleteDiscipline: (disciplineId: string) => Promise<void>;
 }
 
 /* =========================
@@ -40,45 +41,72 @@ export const useUserDashboardViewModel = (): {
   const [state, setState] = useState<DashboardState | null>(null);
   const router = useRouter();
 
-  /* 🔹 LOAD INICIAL */
+  /* =========================
+     LOAD INICIAL (SUPABASE)
+  ========================= */
   useEffect(() => {
-    setState({
-      userName: "Prof. João",
-      credits: 260,
-      disciplines: localRepository.getDisciplines(),
-      logs: localLogRepository.getLogs(),
-    });
+    const loadDashboard = async () => {
+      try {
+        const [disciplines, logs] = await Promise.all([
+          supabaseDisciplineRepository.getDisciplines(),
+          supabaseLogRepository.getLogs(),
+        ]);
+
+        setState({
+          userName: "Prof. João",
+          credits: 260,
+          disciplines,
+          logs,
+          loading: false,
+          error: null,
+        });
+      } catch (error) {
+        console.error("Erro ao carregar dashboard:", error);
+        setState({
+          userName: "Prof. João",
+          credits: 0,
+          disciplines: [],
+          logs: [],
+          loading: false,
+          error: "Erro ao carregar dados do dashboard",
+        });
+      }
+    };
+
+    loadDashboard();
   }, []);
 
-  /* 🔹 ACTIONS */
+  /* =========================
+     ACTIONS
+  ========================= */
   const actions: DashboardActions = {
     createMaterial: useCallback(() => {
-      if (!state) return;
-
-      logAction("Criar Material", { user: state.userName });
       router.push("/add-material");
-    }, [state, router]),
+    }, [router]),
 
     createDiscipline: useCallback(() => {
-      if (!state) return;
-
-      logAction("Criar Disciplina", { user: state.userName });
       router.push("/create-discipline");
-    }, [state, router]),
+    }, [router]),
 
     viewDisciplineDetails: useCallback(
       (disciplineId: string) => {
-        logAction("Ver Detalhes da Disciplina", { disciplineId });
         router.push(`/disciplines/${disciplineId}`);
       },
       [router]
     ),
 
     deleteDiscipline: useCallback(
-      (disciplineId: string) => {
+      async (disciplineId: string) => {
         if (!state) return;
 
-        localRepository.deleteDisciplineById(disciplineId);
+        await supabaseDisciplineRepository.deleteDisciplineById(
+          disciplineId
+        );
+
+        await supabaseLogRepository.addLog(
+          "Disciplina excluída",
+          `Disciplina ${disciplineId}`
+        );
 
         setState({
           ...state,
@@ -86,18 +114,10 @@ export const useUserDashboardViewModel = (): {
             (d) => d.id !== disciplineId
           ),
         });
-
-        localLogRepository.addLog(
-          "Excluir Disciplina",
-          `Disciplina com ID ${disciplineId} foi excluída.`
-        );
       },
       [state]
     ),
   };
 
-  return {
-    state,
-    actions,
-  };
+  return { state, actions };
 };
