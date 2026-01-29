@@ -53,21 +53,17 @@
 }
 .dashboard-create-material {
   margin-left: auto;
-
-  /* 🔹 TAMANHO */
   padding: 1rem 1.75rem;
   min-height: 100%;
   width: 420px;
-  
 
-  /* 🔹 TIPOGRAFIA */
-  font-size: 2px;
+  font-size: 1rem; /* ou remover completamente */
   font-weight: 600;
 
-  /* 🔹 VISUAL */
   border-radius: 70px;
   white-space: nowrap;
 }
+
 
 
 .dashboard-card--disciplines {
