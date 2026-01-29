@@ -1,4 +1,4 @@
-import { LogEntry } from "../types/logs";
+import { LogEntry } from "../../types/logs";
 
 const LOG_KEY = "system_logs";
 

@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { Unit } from "@/app/models/types/unit";
-import { localRepository } from "@/app/models/repository/localDisciplineRepository";
-import { localUnitRepository } from "@/app/models/repository/localUnitRepository";
-import { localLogRepository } from "@/app/models/repository/localLogRepository";
+
+import { supabaseUnitRepository } from "@/app/models/repository/supabase/supabaseUnitRepository";
+import { supabaseLogRepository } from "@/app/models/repository/supabase/supabaseLogRepository";
 
 /* =========================
    STATE
@@ -34,7 +34,7 @@ export interface UnitActions {
     disciplineId: string,
     theme: string,
     context: string
-  ) => Promise<void>;
+  ) => Promise<Unit>;
 }
 
 /* =========================
@@ -70,17 +70,15 @@ export function useUserUnitViewModel(): {
           }),
         });
 
-        if (!response.ok) {
-          throw new Error();
-        }
+        if (!response.ok) throw new Error();
 
         const data = await response.json();
         return data.suggestions?.[0] ?? null;
       } catch {
-        setState((prev) => ({
-          ...prev,
+        setState({
+          loading: false,
           error: "Erro ao gerar sugestão de tema",
-        }));
+        });
         return null;
       } finally {
         setState((prev) => ({ ...prev, loading: false }));
@@ -107,73 +105,73 @@ export function useUserUnitViewModel(): {
           }),
         });
 
-        if (!response.ok) {
-          throw new Error();
-        }
+        if (!response.ok) throw new Error();
 
         const data = await response.json();
         return data.suggestions?.[0] ?? null;
       } catch {
-        setState((prev) => ({
-          ...prev,
+        setState({
+          loading: false,
           error: "Erro ao gerar sugestão de contexto",
-        }));
+        });
         return null;
       } finally {
         setState((prev) => ({ ...prev, loading: false }));
       }
     },
 
-    /* 🔹 Criar Aula */
+    /* 🔹 Criar Unidade (Supabase) */
     createUnit: async (disciplineId, theme, context) => {
-      if (!theme || !context) {
-        setState((prev) => ({
-          ...prev,
-          error: "Preencha todos os campos.",
-        }));
-        throw new Error("Campos obrigatórios");
+  if (!theme || !context) {
+    setState({
+      loading: false,
+      error: "Preencha todos os campos.",
+    });
+    throw new Error("Campos obrigatórios");
+  }
+
+  setState({ loading: true, error: null });
+
+  try {
+    // 🔹 Backend gera lessonPlan + activity
+    const response = await fetch("/api/units", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ theme, context, disciplineId }),
+    });
+
+    if (!response.ok) throw new Error();
+
+    const data = await response.json();
+
+    // 🔥 Salva no Supabase e recebe a unit criada
+    const newUnit = await supabaseUnitRepository.saveUnit(
+      disciplineId,
+      {
+        theme,
+        context,
+        lessonPlan: data.lessonPlan,
+        activity: data.activity,
       }
+    );
 
-      setState({ loading: true, error: null });
+    await supabaseLogRepository.addLog(
+      "Unidade criada",
+      `Tema: ${theme}`
+    );
 
-      try {
-        const response = await fetch("/api/units", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ theme, context, disciplineId }),
-        });
+    return newUnit;
+  } catch {
+    setState({
+      loading: false,
+      error: "Erro ao criar a aula",
+    });
+    throw new Error("Erro ao criar unidade");
+  } finally {
+    setState((prev) => ({ ...prev, loading: false }));
+  }
+},
 
-        if (!response.ok) {
-          throw new Error();
-        }
-
-        const data = await response.json();
-
-        const newUnit: Unit = {
-          id: data.id,
-          theme,
-          context,
-          lessonPlan: data.lessonPlan,
-          activity: data.activity,
-          createdAt: new Date(data.createdAt),
-        };
-
-        localRepository.addUnitToDiscipline(disciplineId, newUnit);
-        localUnitRepository.saveUnit(newUnit);
-        localLogRepository.addLog(
-          "Aula criada",
-          `Tema: ${theme}`
-        );
-      } catch {
-        setState((prev) => ({
-          ...prev,
-          error: "Erro ao criar a aula",
-        }));
-        throw new Error();
-      } finally {
-        setState((prev) => ({ ...prev, loading: false }));
-      }
-    },
   };
 
   return { state, actions };

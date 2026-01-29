@@ -1,23 +1,23 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+
 import { Discipline } from "@/app/models/types/discipline";
-import { localRepository } from "@/app/models/repository/localDisciplineRepository";
-import { localUnitRepository } from "@/app/models/repository/localUnitRepository";
-import { localLogRepository } from "@/app/models/repository/localLogRepository";
-import { localMaterialRepository } from "@/app/models/repository/localMaterialRepository";
-
 import { Material } from "@/app/models/types/material";
+
+import { supabaseDisciplineRepository } from "@/app/models/repository/supabase/supabaseDiciplineRepository";
+import { supabaseMaterialRepository } from "@/app/models/repository/supabase/supabaseMaterialRepository";
+import { supabaseUnitRepository } from "@/app/models/repository/supabase/supabaseUnitRepository";
+import { supabaseLogRepository } from "@/app/models/repository/supabase/supabaseLogRepository";
+
 export type MaterialMode = "CONTENT" | "ACTIVITY";
-
-
-
 
 /* =========================
    STATE
 ========================= */
 export interface DisciplineState {
   disciplines: Discipline[];
+  materials: Material[]; // 🔥 cache local
   loading: boolean;
   error: string | null;
 }
@@ -26,7 +26,7 @@ export interface DisciplineState {
    ACTIONS
 ========================= */
 export interface DisciplineActions {
-  loadDisciplines: () => void;
+  loadDisciplines: () => Promise<void>;
 
   addDiscipline: (
     name: string,
@@ -42,8 +42,9 @@ export interface DisciplineActions {
   deleteUnit: (
     disciplineId: string,
     unitId: string
-  ) => void;
+  ) => Promise<void>;
 
+  // 👇 AGORA SÍNCRONO (igual localRepository)
   getRecentContentMaterials: (
     disciplineId: string,
     limit?: number
@@ -55,72 +56,80 @@ export interface DisciplineActions {
   ) => Material[];
 }
 
-
-
 /* =========================
    VIEWMODEL
 ========================= */
-export function useUserDisciplineViewModel(): {
-  state: DisciplineState;
-  actions: DisciplineActions;
-} {
+export function useUserDisciplineViewModel() {
   const [state, setState] = useState<DisciplineState>({
     disciplines: [],
+    materials: [],
     loading: false,
     error: null,
   });
 
-/* =========================
-   HELPERS (privados)
-========================= */
-const getMaterialsByDisciplineInternal = (
-  disciplineId: string
-): Material[] => {
-  const discipline = state.disciplines.find(
-    (d) => d.id === disciplineId
-  );
+  /* =========================
+     LOAD DISCIPLINES + MATERIALS
+  ========================= */
+  const loadDisciplines = useCallback(async () => {
+    setState((prev) => ({ ...prev, loading: true }));
 
-  if (!discipline) return [];
+    try {
+  const [disciplines, materials] = await Promise.all([
+    supabaseDisciplineRepository.getDisciplines(),
+    supabaseMaterialRepository.getMaterials(),
+  ]);
 
-  const unitIds = discipline.units.map((u) => u.id);
+  setState({
+    disciplines,
+    materials,
+    loading: false,
+    error: null,
+  });
+} catch (err) {
+  console.error("Erro loadDisciplines:", err);
+  setState((prev) => ({
+    ...prev,
+    loading: false,
+    error: "Erro ao carregar dados",
+  }));
+}
 
-  return localMaterialRepository
-    .getMaterials()
-    .filter((m: Material) =>
-      unitIds.includes(m.unitId)
-    )
-    .sort(
-      (a, b) =>
-        b.createdAt.getTime() - a.createdAt.getTime()
-    );
-};
-
-
-
-  /* 🔹 LOAD */
-  const loadDisciplines = useCallback(() => {
-    const stored = localRepository.getDisciplines();
-    setState((prev) => ({
-      ...prev,
-      disciplines: stored,
-    }));
   }, []);
 
   useEffect(() => {
     loadDisciplines();
   }, [loadDisciplines]);
 
-  /* 🔹 ACTIONS */
-  
-const actions: DisciplineActions = {
-  /* 🔹 LOAD */
-  loadDisciplines,
+  /* =========================
+     HELPERS (SYNC)
+  ========================= */
+  const getMaterialsByDiscipline = (
+    disciplineId: string
+  ): Material[] => {
+    const discipline = state.disciplines.find(
+      (d) => d.id === disciplineId
+    );
 
-  /* 🔹 CRIAR DISCIPLINA (rápido) */
-  addDiscipline: async (name, grade) => {
-    setState((prev) => ({ ...prev, loading: true, error: null }));
+    if (!discipline) return [];
 
-    try {
+    const unitIds = discipline.units.map((u) => u.id);
+
+    return state.materials
+      .filter((m) => unitIds.includes(m.unitId))
+      .sort(
+        (a, b) =>
+          b.createdAt.getTime() - a.createdAt.getTime()
+      );
+  };
+
+  /* =========================
+     ACTIONS
+  ========================= */
+  const actions: DisciplineActions = {
+    loadDisciplines,
+
+    /* 🔹 CREATE */
+    addDiscipline: async (name, grade) => {
       const newDiscipline: Discipline = {
         id: crypto.randomUUID(),
         name,
@@ -129,8 +138,11 @@ const actions: DisciplineActions = {
         units: [],
       };
 
-      localRepository.saveDiscipline(newDiscipline);
-      localLogRepository.addLog(
+      await supabaseDisciplineRepository.saveDiscipline(
+        newDiscipline
+      );
+
+      await supabaseLogRepository.addLog(
         "Disciplina criada",
         `Disciplina "${name}" (${grade})`
       );
@@ -141,34 +153,13 @@ const actions: DisciplineActions = {
       }));
 
       return newDiscipline;
-    } catch (error) {
-      setState((prev) => ({
-        ...prev,
-        error: "Erro ao criar a disciplina",
-      }));
-      throw error;
-    } finally {
-      setState((prev) => ({ ...prev, loading: false }));
-    }
-  },
+    },
 
-  /* 🔹 CRIAR DISCIPLINA (confirmação) */
-  confirmCreateDiscipline: async (
-    discipline,
-    levelLabel,
-    year
-  ) => {
-    if (!discipline || !levelLabel || !year) {
-      setState((prev) => ({
-        ...prev,
-        error: "Selecione o nível de ensino, o ano e a disciplina.",
-      }));
-      throw new Error("Dados incompletos");
-    }
-
-    setState((prev) => ({ ...prev, loading: true, error: null }));
-
-    try {
+    confirmCreateDiscipline: async (
+      discipline,
+      levelLabel,
+      year
+    ) => {
       const newDiscipline: Discipline = {
         id: crypto.randomUUID(),
         name: discipline,
@@ -177,8 +168,11 @@ const actions: DisciplineActions = {
         units: [],
       };
 
-      localRepository.saveDiscipline(newDiscipline);
-      localLogRepository.addLog(
+      await supabaseDisciplineRepository.saveDiscipline(
+        newDiscipline
+      );
+
+      await supabaseLogRepository.addLog(
         "Disciplina criada",
         `Disciplina "${discipline}" (${levelLabel} - ${year})`
       );
@@ -189,95 +183,61 @@ const actions: DisciplineActions = {
       }));
 
       return newDiscipline;
-    } catch (error) {
+    },
+
+    deleteUnit: async (disciplineId, unitId) => {
+      await supabaseUnitRepository.deleteUnitById(unitId);
+
+      await supabaseLogRepository.addLog(
+        "Unidade excluída",
+        `Unidade ${unitId}`
+      );
+
       setState((prev) => ({
         ...prev,
-        error: "Erro ao criar a disciplina",
-      }));
-      throw error;
-    } finally {
-      setState((prev) => ({ ...prev, loading: false }));
-    }
-  },
-
-  /* 🔹 EXCLUIR UNIDADE (corrigido) */
-  deleteUnit: (disciplineId, unitId) => {
-    setState((prev) => {
-      try {
-        localUnitRepository.deleteUnitById(unitId);
-
-        const updatedDisciplines = prev.disciplines.map((d) =>
+        disciplines: prev.disciplines.map((d) =>
           d.id === disciplineId
             ? {
                 ...d,
-                units: d.units.filter((u) => u.id !== unitId),
+                units: d.units.filter(
+                  (u) => u.id !== unitId
+                ),
               }
             : d
-        );
+        ),
+        materials: prev.materials.filter(
+          (m) => m.unitId !== unitId
+        ),
+      }));
+    },
 
-        const disciplineUpdated = updatedDisciplines.find(
-          (d) => d.id === disciplineId
-        );
+    /* 📄 PDFs & Slides */
+    getRecentContentMaterials: (
+      disciplineId,
+      limit = 3
+    ) =>
+      getMaterialsByDiscipline(disciplineId)
+        .filter(
+          (m) =>
+            m.type === "PDF" ||
+            m.type === "SLIDES"
+        )
+        .slice(0, limit),
 
-        if (disciplineUpdated) {
-          localRepository.updateDiscipline(disciplineUpdated);
-        }
-
-        localLogRepository.addLog(
-          "Unidade excluída",
-          `Unidade ${unitId}`
-        );
-
-        return {
-          ...prev,
-          disciplines: updatedDisciplines,
-          loading: false,
-        };
-      } catch {
-        return {
-          ...prev,
-          loading: false,
-          error: "Erro ao excluir unidade",
-        };
-      }
-    });
-
-  },
-
-   /* 📄 PDFs & Slides */
-  getRecentContentMaterials: (
-    disciplineId,
-    limit = 3
-  ) => {
-    return getMaterialsByDisciplineInternal(disciplineId)
-      .filter(
-        (m) =>
-          m.type === "PDF" ||
-          m.type === "SLIDES"
-      )
-      .slice(0, limit);
-  },
-
-  /* 📝 Atividades */
-  getRecentActivityMaterials: (
-    disciplineId,
-    limit = 3
-  ) => {
-    return getMaterialsByDisciplineInternal(disciplineId)
-      .filter(
-        (m) =>
-          m.type === "RESUMO" ||
-          m.type === "ATIVIDADE" ||
-          m.type === "PROVA"
-      )
-      .slice(0, limit);
-  },
-};
-
-
-
-  return {
-    state,
-    actions,
+    /* 📝 Atividades */
+    getRecentActivityMaterials: (
+      disciplineId,
+      limit = 3
+    ) =>
+      getMaterialsByDiscipline(disciplineId)
+        .filter(
+          (m) =>
+            m.type === "RESUMO" ||
+            m.type === "ATIVIDADE" ||
+            m.type === "PROVA"
+        )
+        .slice(0, limit),
   };
+
+  return { state, actions };
 }
