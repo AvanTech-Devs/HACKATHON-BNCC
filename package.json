@@ -18,6 +18,8 @@
     "@radix-ui/react-hover-card": "^1.0.7",
     "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-slot": "^1.0.2",
+    "@supabase/auth-helpers-nextjs": "^0.15.0",
+    "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.93.3",
     "ai": "^3.0.21",
     "ajv": "^8.12.0",

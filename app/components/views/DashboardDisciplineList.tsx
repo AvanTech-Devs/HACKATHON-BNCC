@@ -11,40 +11,40 @@ export interface DashboardDisciplineListProps {
 const DashboardDisciplineList: FC<
   DashboardDisciplineListProps
 > = ({ disciplines, onView, onDelete, onCreate }) => {
-  if (disciplines.length === 0) {
-    return (
-      <p className="dashboard-empty">
-        Nenhuma disciplina criada ainda.
-      </p>
-    );
-  }
-
   return (
     <>
-      <ul className="dashboard-discipline-list">
-        {disciplines.map((discipline) => (
-          <li key={discipline.id} className="discipline-item">
-            <span>
-              <strong>{discipline.name}</strong> —{" "}
-              {discipline.grade}
-            </span>
+      {disciplines.length === 0 && (
+        <p className="dashboard-empty">
+          Nenhuma disciplina criada ainda.
+        </p>
+      )}
 
-            <button
-              className="view-discipline-button"
-              onClick={() => onView(discipline.id)}
-            >
-              Ver Detalhes
-            </button>
+      {disciplines.length > 0 && (
+        <ul className="dashboard-discipline-list">
+          {disciplines.map((discipline) => (
+            <li key={discipline.id} className="discipline-item">
+              <span>
+                <strong>{discipline.name}</strong> —{" "}
+                {discipline.grade}
+              </span>
 
-            <button
-              className="delete-discipline-button"
-              onClick={() => onDelete(discipline.id)}
-            >
-              Excluir
-            </button>
-          </li>
-        ))}
-      </ul>
+              <button
+                className="view-discipline-button"
+                onClick={() => onView(discipline.id)}
+              >
+                Ver Detalhes
+              </button>
+
+              <button
+                className="delete-discipline-button"
+                onClick={() => onDelete(discipline.id)}
+              >
+                Excluir
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
 
       <button
         className="dashboard-button primary"
@@ -55,5 +55,6 @@ const DashboardDisciplineList: FC<
     </>
   );
 };
+
 
 export default DashboardDisciplineList;
