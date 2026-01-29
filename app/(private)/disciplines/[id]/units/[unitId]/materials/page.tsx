@@ -1,45 +1,72 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import {
+  useParams,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import "@/app/styles/materials.css";
 
 import { useUserMaterialViewModel } from "@/app/components/viewmodels/useUserMaterialViewModel";
 import { Material, MaterialType } from "@/app/models/types/material";
 
+type MaterialMode = "CONTENT" | "ACTIVITY";
+
 const MaterialsPage = () => {
-  const { id, unitId } = useParams();
+  const { id, unitId } = useParams<{
+    id: string;
+    unitId: string;
+  }>();
+
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const { state, actions } = useUserMaterialViewModel();
 
-  const [materials, setMaterials] = useState<Material[]>(
-    actions.getMaterialsByUnit(unitId as string)
-  );
+  /* 🧠 Modo da página (define o que mostrar) */
+  const mode: MaterialMode =
+    searchParams.get("mode") === "activity"
+      ? "ACTIVITY"
+      : "CONTENT";
 
-  /* 🔄 Atualiza lista ao carregar */
+  /* 🧠 Tipos permitidos por modo */
+  const allowedTypes: MaterialType[] =
+    mode === "CONTENT"
+      ? ["SLIDES", "PDF"]
+      : ["RESUMO", "ATIVIDADE", "PROVA"];
+
+  const [materials, setMaterials] = useState<Material[]>([]);
+
+  /* 🔄 Carrega materiais da unidade */
   useEffect(() => {
-    setMaterials(actions.getMaterialsByUnit(unitId as string));
+    setMaterials(actions.getMaterialsByUnit(unitId));
   }, [unitId]);
 
   /* 🧠 Gerar material com IA */
-  const handleGenerateMaterial = async (type: MaterialType) => {
+  const handleGenerateMaterial = async (
+    type: MaterialType
+  ) => {
     const material = await actions.generateMaterial(
-  unitId as string,
-  type
-);
-
+      unitId,
+      type
+    );
 
     if (material) {
-      setMaterials(actions.getMaterialsByUnit(unitId as string));
+      setMaterials(actions.getMaterialsByUnit(unitId));
     }
   };
 
   /* 🗑️ Excluir material */
   const handleDeleteMaterial = (materialId: string) => {
     actions.deleteMaterial(materialId);
-    setMaterials(actions.getMaterialsByUnit(unitId as string));
+    setMaterials(actions.getMaterialsByUnit(unitId));
   };
+
+  /* 🎯 Filtrar materiais exibidos */
+  const filteredMaterials = materials.filter((material) =>
+    allowedTypes.includes(material.type)
+  );
 
   if (state.loading) {
     return <p>Gerando material...</p>;
@@ -48,45 +75,84 @@ const MaterialsPage = () => {
   return (
     <div className="materials-container">
       <header>
-        <h1>Materiais da Aula</h1>
-        <button onClick={() => router.back()}>Voltar</button>
+        <h1>
+          {mode === "CONTENT"
+            ? "Materiais Didáticos"
+            : "Atividades e Avaliações"}
+        </h1>
+
+        <button onClick={() => router.back()}>
+          Voltar
+        </button>
       </header>
 
-      {state.error && <p className="error">{state.error}</p>}
+      {state.error && (
+        <p className="error">{state.error}</p>
+      )}
 
+      {/* 🔹 AÇÕES */}
       <section className="materials-actions">
         <h2>Gerar com IA</h2>
 
-        <button onClick={() => handleGenerateMaterial("SLIDES")}>
-          Gerar Slides
-        </button>
+        {mode === "CONTENT" && (
+          <>
+            <button
+              onClick={() =>
+                handleGenerateMaterial("SLIDES")
+              }
+            >
+              Gerar Slides
+            </button>
 
-        <button onClick={() => handleGenerateMaterial("PDF")}>
-          Gerar PDF
-        </button>
+            <button
+              onClick={() =>
+                handleGenerateMaterial("PDF")
+              }
+            >
+              Gerar PDF
+            </button>
+          </>
+        )}
 
-        <button onClick={() => handleGenerateMaterial("RESUMO")}>
-          Gerar Resumo
-        </button>
+        {mode === "ACTIVITY" && (
+          <>
+            <button
+              onClick={() =>
+                handleGenerateMaterial("RESUMO")
+              }
+            >
+              Gerar Resumo
+            </button>
 
-        <button onClick={() => handleGenerateMaterial("ATIVIDADE")}>
-          Gerar Atividade
-        </button>
+            <button
+              onClick={() =>
+                handleGenerateMaterial("ATIVIDADE")
+              }
+            >
+              Gerar Atividade
+            </button>
 
-        <button onClick={() => handleGenerateMaterial("PROVA")}>
-          Gerar Prova
-        </button>
+            <button
+              onClick={() =>
+                handleGenerateMaterial("PROVA")
+              }
+            >
+              Gerar Prova
+            </button>
+          </>
+        )}
       </section>
 
+      {/* 🔹 LISTA */}
       <section className="materials-list">
         <h2>Materiais Criados</h2>
 
-        {materials.length === 0 && (
+        {filteredMaterials.length === 0 && (
           <p>Nenhum material gerado ainda.</p>
         )}
 
         <ul>
-          {materials.map((material) => (
+          {filteredMaterials.map((material) => (
             <li key={material.id}>
               <strong>{material.title}</strong>
               <span>Tipo: {material.type}</span>
@@ -103,7 +169,9 @@ const MaterialsPage = () => {
                 </button>
 
                 <button
-                  onClick={() => handleDeleteMaterial(material.id)}
+                  onClick={() =>
+                    handleDeleteMaterial(material.id)
+                  }
                 >
                   Excluir
                 </button>
