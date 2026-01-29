@@ -1,3 +1,5 @@
+// app/utils/parseRichText.tsx
+
 import React from "react";
 
 export function parseRichText(text: string) {

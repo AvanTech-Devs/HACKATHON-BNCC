@@ -106,7 +106,13 @@ export default function CreateUnitPage() {
             } catch {}
           }}
         >
-          {unitState.loading ? "Salvando..." : "Salvar Aula"}
+          {unitState.loading ? "Carregando..." : "Salvar Aula"}
+        </button>
+        <button
+          type="button"
+          onClick={() => router.push(`/disciplines/${discipline.id}`)}
+        >
+          Cancelar
         </button>
       </form>
 

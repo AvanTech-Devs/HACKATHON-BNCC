@@ -1,204 +1,234 @@
+/* ================================
+   CONTAINER PRINCIPAL
+================================ */
 .disciplines-container {
-  max-width: 800px;
+  max-width: 900px;
   margin: 2rem auto;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #f9f9f9;
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 12px;
+  font-family: "Inter", "Roboto", sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
-.disciplines-header {
-  text-align: center;
-  margin-bottom: 2rem;
+/* ================================
+   HEADER
+================================ */
+.disciplines-container > header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
 }
 
-.disciplines-title {
+.disciplines-container h1 {
   font-size: 2rem;
-  margin-bottom: 0.5rem;
+  font-weight: 700;
+  color: #1e3a8a;
 }
 
-.disciplines-welcome {
+.disciplines-container p {
+  color: #6b7280;
   font-size: 1rem;
-  color: #555;
 }
 
-.disciplines-sections {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.disciplines-section {
-  flex: 1;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #fff;
-}
-
-.disciplines-section h2 {
-  font-size: 1.25rem;
-  margin-bottom: 1rem;
-}
-
-.disciplines-section ul {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1rem 0;
-}
-
-.disciplines-section li {
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-}
-
-.disciplines-section li span {
-  display: block;
-  font-size: 0.8rem;
-  color: #777;
-}
-
-.disciplines-button {
-  display: block;
-  width: 100%;
-  padding: 0.5rem;
-  border: none;
-  border-radius: 4px;
-  background-color: #007bff;
-  color: white;
-  cursor: pointer;
-  text-align: center;
-}
-
-.disciplines-button:hover {
-  background-color: #0056b3;
-}
-
-.disciplines-button.primary {
-  margin-top: 1rem;
-  background-color: #28a745;
-}
-
-.disciplines-button.primary:hover {
-  background-color: #218838;
-}
-.unit-buttons {
-  display: flex;
-  gap: 0.5rem;
+.disciplines-container header button {
   margin-top: 0.5rem;
-}
-
-.unit-buttons button {
-  padding: 0.4rem 0.6rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
   border: none;
-  border-radius: 4px;
+  background-color: #f3f4f6;
+  color: #111827;
   cursor: pointer;
-  font-size: 0.85rem;
+  transition: filter 0.2s;
 }
 
-/* Botão Ver detalhes */
-.unit-buttons button:nth-child(1) {
-  background-color: #007bff;
-  color: white;
+.disciplines-container header button:hover {
+  filter: brightness(0.9);
 }
 
-/* Botão Criar material */
-.unit-buttons button:nth-child(2) {
-  background-color: #28a745;
-  color: white;
-}
-
-/* Botão Excluir */
-.unit-buttons button:nth-child(3) {
-  background-color: #dc3545;
-  color: white;
-}
+/* ================================
+   CARDS DE CONTEÚDO
+================================ */
 .disciplines-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
-  margin-top: 2rem;
 }
 
 .discipline-card {
   background: #fff;
-  border-radius: 10px;
-  padding: 1.2rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .discipline-card h2 {
-  margin-bottom: 0.8rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e3a8a;
 }
 
 .discipline-card ul {
   list-style: none;
   padding: 0;
-  margin-bottom: 1rem;
+  margin: 0;
 }
 
 .discipline-card li {
-  font-size: 0.9rem;
-  margin-bottom: 0.4rem;
-}
-
-.discipline-card button {
-  width: 100%;
-}
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  z-index: 1000;
+  padding: 0.5rem 0;
+  font-size: 0.95rem;
+  cursor: pointer;
 }
 
-.modal {
-  background: #fff;
-  padding: 20px;
+.discipline-card li span {
+  flex: 1;
+}
+
+.discipline-card li:hover {
+  background-color: #f3f4f6;
+  border-radius: 6px;
+}
+
+.discipline-card button.delete-button {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+}
+
+.discipline-card button.delete-button:hover {
+  background: #b91c1c;
+}
+
+/* ================================
+   BOTÕES PRINCIPAIS
+================================ */
+.dashboard-button {
+  padding: 0.6rem 1.2rem;
   border-radius: 8px;
-  width: 320px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
 }
 
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 15px;
+.dashboard-button.primary {
+  background-color: #1e3a8a;
+  color: white;
 }
+
+.dashboard-button.primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dashboard-button:hover:not(:disabled) {
+  filter: brightness(0.9);
+}
+
+.dashboard-button:not(.primary) {
+  background-color: #f3f4f6;
+  color: #111827;
+  border: 1px solid #d1d5db;
+}
+
+/* ================================
+   MODAL PADRÃO
+================================ */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
+  padding: 1rem;
+  overflow-y: auto;
 }
 
 .modal {
   background: #fff;
-  padding: 24px;
-  border-radius: 8px;
+  padding: 2rem;
+  border-radius: 12px;
   text-align: center;
-  min-width: 280px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
+/* ================================
+   SELECT CUSTOM
+================================ */
+select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #f3f4f6;
+  color: #111827;
+  font-size: 0.95rem;
+  cursor: pointer;
+  appearance: none;
+}
+
+/* ================================
+   MODAL ACTIONS
+================================ */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ================================
+   LOADING SPINNER
+================================ */
 .spinner {
   margin: 16px auto;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border: 4px solid #ddd;
-  border-top: 4px solid #333;
+  border-top: 4px solid #1e3a8a;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  animation: spin 0.9s linear infinite;
 }
 
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* ================================
+   RESPONSIVIDADE
+================================ */
+@media (max-width: 600px) {
+  .disciplines-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .discipline-card {
+    padding: 1rem;
+  }
+
+  .disciplines-container {
+    padding: 1rem;
   }
 }

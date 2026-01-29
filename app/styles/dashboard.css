@@ -1,114 +1,95 @@
+/* ================================
+   VARIÁVEIS – PADRÃO ACADÊMICO
+================================ */
+:root {
+  --primary: #1e3a8a;
+  --primary-hover: #1e40af;
+
+  --background: #f3f4f6;
+  --card-bg: #ffffff;
+
+  --text-main: #111827;
+  --text-muted: #6b7280;
+
+  --border: #e5e7eb;
+
+  --success: #166534;
+  --danger: #b91c1c;
+
+  --info-bg: #e0f2fe;
+  --info-text: #0369a1;
+}
+
 /* =========================
    CONTAINER
 ========================= */
 .dashboard-container {
   min-height: 100vh;
   padding: 2rem;
-  background-color: #f9fafb;
+  background-color: var(--background);
+  font-family: "Inter", "Roboto", system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 /* =========================
    HEADER
 ========================= */
 .dashboard-header {
-  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .dashboard-title {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #16a34a;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--primary);
 }
 
 .dashboard-welcome {
-  color: #374151;
-  margin-top: 0.25rem;
+  font-size: 1rem;
+  color: var(--text-muted);
 }
 
 /* ===============================
-   GRID PRINCIPAL DO DASHBOARD
+   LINHA DE CRÉDITOS + HISTÓRICO
 =============================== */
-/* ===============================
-   GRID PRINCIPAL DO DASHBOARD
-=============================== */
-
-.dashboard-grid {
+.dashboard-top-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-areas:
-    "top top"
-    "logs disciplines";
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
-#textButtonCreate{
-  font-size: 20px;
-}
-.dashboard-card--credits {
-  width: 912px;
-}
-
+.dashboard-card--credits,
 .dashboard-card--logs {
-  grid-area: logs;
+  background-color: var(--card-bg);
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  text-align: center;
 }
-.dashboard-create-material {
-  margin-left: auto;
-  padding: 1rem 1.75rem;
-  min-height: 100%;
-  width: 420px;
 
-  font-size: 1rem; /* ou remover completamente */
+/* Créditos */
+.dashboard-credits {
+  font-size: 1.6rem; /* menor que antes */
   font-weight: 600;
-
-  border-radius: 70px;
-  white-space: nowrap;
+  color: var(--success);
+  margin: 0.25rem 0;
 }
 
-
-
-.dashboard-card--disciplines {
-  grid-area: disciplines;
-
-}
-
-
-
-/* =========================
-   CARD
-========================= */
-.dashboard-card {
-  background-color: #ffffff;
-  padding: 1.5rem;
-  border-radius: 14px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-    /* 🔹 ADIÇÕES (não alteram o visual) */
-  height: 100%;
+/* Logs / Atividades Recentes */
+.dashboard-card--logs {
   display: flex;
   flex-direction: column;
-  
+  max-height: 200px; /* menor e scrollável */
+  overflow-y: auto;
+  text-align: left;
+  padding: 0.75rem 1rem;
 }
 
-.dashboard-card h2 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: #111827;
-  
-}
-
-/* =========================
-   CRÉDITOS
-========================= */
-.dashboard-credits {
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: #22c55e;
-   
-}
-
-/* =========================
-   LISTAS
-========================= */
 .dashboard-list {
   list-style: none;
   padding: 0;
@@ -116,120 +97,181 @@
 }
 
 .dashboard-list li {
-  padding: 0.6rem 0;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 0.4rem;
+  background-color: #f9fafb;
+  border: 1px solid var(--border);
+  transition: background 0.2s;
+  font-size: 0.9rem;
+  color: var(--text-main);
 }
 
-.dashboard-list li:last-child {
-  border-bottom: none;
+.dashboard-list li:hover {
+  background-color: #e5e7eb;
 }
 
 .dashboard-empty {
-  color: #6b7280;
+  color: var(--text-muted);
   font-size: 0.9rem;
+  text-align: center;
+  padding: 1rem 0;
 }
 
-/* =========================
+/* ===============================
    DISCIPLINAS
-========================= */
-.dashboard-discipline-list {
-  list-style: none;
-  padding: 0;
-  margin-bottom: 1rem;
-}
-
-.discipline-item {
+=============================== */
+.dashboard-card--disciplines {
+  background-color: var(--card-bg);
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.8rem;
-  padding: 0.6rem 0;
-  border-bottom: 1px solid #e5e7eb;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.discipline-item span {
-  flex: 1;
-  font-size: 0.95rem;
+/* Grid das disciplinas */
+.dashboard-discipline-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
 }
 
 /* =========================
-   BOTÕES
+   CARD DA DISCIPLINA
 ========================= */
-.dashboard-button {
-  padding: 0.5rem 0.9rem;
+.discipline-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.discipline-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.discipline-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 0.25rem;
+}
+
+.discipline-card-grade {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+/* Ações do card */
+.discipline-card-actions {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: flex-end;
+}
+
+.discipline-card-actions button {
+  padding: 0.4rem 0.7rem;
+  font-size: 0.8rem;
   border-radius: 6px;
   border: none;
-  font-size: 0.85rem;
   cursor: pointer;
-  background-color: #e5e7eb;
-  color: #111827;
-  transition: background-color 0.2s ease;
 }
 
-.dashboard-button:hover {
-  background-color: #d1d5db;
+.discipline-view {
+  background-color: var(--info-bg);
+  color: var(--info-text);
 }
 
-.dashboard-button.primary {
-  background-color: #22c55e;
-  color: #ffffff;
-}
-
-.dashboard-button.primary:hover {
-  background-color: #16a34a;
-}
-
-.view-discipline-button {
-  background-color: #e0f2fe;
-  color: #0369a1;
-}
-
-.view-discipline-button:hover {
+.discipline-view:hover {
   background-color: #bae6fd;
 }
 
-.delete-discipline-button {
+.discipline-delete {
   background-color: #fee2e2;
-  color: #b91c1c;
+  color: var(--danger);
 }
 
-.delete-discipline-button:hover {
+.discipline-delete:hover {
   background-color: #fecaca;
 }
 
 /* =========================
-   FOOTER
+   BOTÕES GERAIS
+========================= */
+.dashboard-button {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.dashboard-button:hover {
+  background-color: #e5e7eb;
+}
+
+.dashboard-button.primary {
+  background-color: var(--primary);
+  color: #ffffff;
+  border: none;
+}
+
+.dashboard-button.primary:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Botão criar disciplina dentro da lista de disciplinas */
+.dashboard-discipline-create {
+  padding: 0.8rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  background-color: var(--primary);
+  color: #ffffff;
+  border: none;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.dashboard-discipline-create:hover {
+  background-color: var(--primary-hover);
+}
+
+/* =========================
+   BOTÃO CRIAR MATERIAL – FOOTER
 ========================= */
 .dashboard-footer {
-  margin-top: 2rem;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
+  margin-top: 1rem;
 }
 
-/* === ATIVIDADES RECENTES COM SCROLL === */
-.dashboard-card--scrollable {
-  max-height: 455px;        /* ajuste fino aqui */
-  display: flex;
-  flex-direction: column;
+.dashboard-create-material {
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: 12px;
+  background-color: var(--primary);
+  color: #ffffff;
+  border: none;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
 }
 
-.dashboard-card--scrollable ul {
-  overflow-y: auto;
-  padding-right: 0.5rem;
-}
-
-
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.dashboard-top-row {
-  grid-area: top;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
+.dashboard-create-material:hover {
+  background-color: var(--primary-hover);
 }

@@ -30,14 +30,7 @@ const DashboardHeader: FC<DashboardHeaderProps> = ({
       </div>
 
       <div className="dashboard-header-right">
-        {onCreateMaterial && (
-          <button
-            className="dashboard-button primary"
-            onClick={onCreateMaterial}
-          >
-            Novo Material
-          </button>
-        )}
+        
 
         <button
           className="dashboard-button logout"

@@ -12,6 +12,7 @@ import {
 import DashboardHeader from "@/app/components/views/DashboardHeader";
 import DashboardCard from "@/app/components/views/DashboardCard";
 import DashboardDisciplineList from "@/app/components/views/DashboardDisciplineList";
+import DashboardFooter from "@/app/components/views/DashboardFooter";
 
 import SelectMaterialModal from "@/app/components/modals/SelectMaterialModal";
 
@@ -35,12 +36,10 @@ const DashboardPage: FC = () => {
   const [selectedUnitId, setSelectedUnitId] = useState<string>("");
 
   if (!state) {
-    return <p className="dashboard-container">Carregando...</p>;
+    return <p className="dashboard-container theme-dark">Carregando...</p>;
   }
 
-  const handleCreateMaterial = () => {
-    setShowCreateModal(true);
-  };
+  const handleCreateMaterial = () => setShowCreateModal(true);
 
   const handleConfirmCreate = () => {
     if (!selectedDisciplineId || !selectedUnitId) return;
@@ -49,43 +48,42 @@ const DashboardPage: FC = () => {
   };
 
   return (
-    <div className="dashboard-container">
-      <DashboardHeader
-        userName={state.userName}
-        onCreateMaterial={handleCreateMaterial}
-      />
+    <div className="dashboard-container theme-dark">
+      {/* =========================
+          HEADER
+      ========================= */}
+      <DashboardHeader userName={state.userName} />
 
+      {/* =========================
+          GRID PRINCIPAL
+      ========================= */}
       <div className="dashboard-grid">
         <div className="dashboard-top-row">
+          {/* Créditos */}
           <DashboardCard title="Créditos disponíveis" area="credits">
             <p className="dashboard-credits">{formatNumber(state.credits)}</p>
           </DashboardCard>
 
-          <button
-            className="dashboard-button primary dashboard-create-material"
-            onClick={handleCreateMaterial}
-          >
-            <p id="textButtonCreate">+ Criar Novo Material</p>
-          </button>
+          {/* Atividades Recentes */}
+          <DashboardCard title="Atividades Recentes" scrollable area="logs">
+            {state.logs.length === 0 ? (
+              <p className="dashboard-empty">Nenhuma atividade registrada.</p>
+            ) : (
+              <ul className="dashboard-list">
+                {state.logs.map((log) => (
+                  <li key={log.id}>
+                    <strong>{log.action}</strong>
+                    {log.description && ` — ${log.description}`}
+                    <br />
+                    <small>{formatDate(log.createdAt)}</small>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </DashboardCard>
         </div>
 
-        <DashboardCard title="Atividades Recentes" scrollable area="logs">
-          {state.logs.length === 0 ? (
-            <p className="dashboard-empty">Nenhuma atividade registrada.</p>
-          ) : (
-            <ul className="dashboard-list">
-              {state.logs.map((log) => (
-                <li key={log.id}>
-                  <strong>{log.action}</strong>
-                  {log.description && ` — ${log.description}`}
-                  <br />
-                  <small>{formatDate(log.createdAt)}</small>
-                </li>
-              ))}
-            </ul>
-          )}
-        </DashboardCard>
-
+        {/* Disciplinas */}
         <DashboardCard title="Suas Disciplinas" area="disciplines">
           <DashboardDisciplineList
             disciplines={state.disciplines}
@@ -95,6 +93,11 @@ const DashboardPage: FC = () => {
           />
         </DashboardCard>
       </div>
+
+      {/* =========================
+          FOOTER COM BOTÃO CRIAR MATERIAL
+      ========================= */}
+      <DashboardFooter onCreateMaterial={handleCreateMaterial} />
 
       {/* =========================
           MODAL DE SELEÇÃO
