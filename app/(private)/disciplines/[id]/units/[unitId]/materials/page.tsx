@@ -1,16 +1,20 @@
 "use client";
 
+import { useState } from "react";
 import {
   useParams,
   useRouter,
   useSearchParams,
 } from "next/navigation";
+
 import "@/app/styles/materials.css";
 
 import {
   useUserMaterialViewModel,
   MaterialMode,
 } from "@/app/components/viewmodels/useUserMaterialViewModel";
+
+import LoadingGenerate from "@/app/components/modals/LoadingGenerate";
 
 const MaterialsPage = () => {
   const { id, unitId } = useParams<{
@@ -28,11 +32,16 @@ const MaterialsPage = () => {
 
   const { state, actions } = useUserMaterialViewModel();
 
-  const materials =
-    actions.getFilteredMaterials(unitId, mode);
+  const materials = actions.getFilteredMaterials(unitId, mode);
+  const allowedTypes = actions.getAllowedTypesByMode(mode);
 
-  const allowedTypes =
-    actions.getAllowedTypesByMode(mode);
+  /* =========================
+     LOADING STATE
+  ========================= */
+  const [showLoading, setShowLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState(
+    "Gerando conteúdo..."
+  );
 
   return (
     <div className="materials-container">
@@ -50,21 +59,49 @@ const MaterialsPage = () => {
 
       {state.error && <p>{state.error}</p>}
 
+      {/* =========================
+          AÇÕES
+      ========================= */}
       <section className="materials-actions">
         <h2>Gerar com IA</h2>
 
         {allowedTypes.map((type) => (
           <button
             key={type}
-            onClick={() =>
-              actions.generateMaterial(unitId, type)
-            }
+            disabled={state.loading}
+            onClick={async () => {
+              setShowLoading(true);
+              setLoadingMessage("Gerando material com IA...");
+
+              const result =
+                await actions.generateMaterial(unitId, type);
+
+              if (result) {
+                setLoadingMessage(
+                  "Material gerado com sucesso!"
+                );
+              } else {
+                setLoadingMessage(
+                  "Erro ao gerar material."
+                );
+              }
+
+              // pequeno delay para UX
+              setTimeout(() => {
+                setShowLoading(false);
+                setLoadingMessage("");
+                router.refresh();
+              }, 1200);
+            }}
           >
             Gerar {type}
           </button>
         ))}
       </section>
 
+      {/* =========================
+          LISTA
+      ========================= */}
       <section className="materials-list">
         <h2>Materiais Criados</h2>
 
@@ -89,9 +126,7 @@ const MaterialsPage = () => {
               </button>
 
               <button
-                onClick={() =>
-                  actions.deleteMaterial(m.id)
-                }
+                onClick={() => actions.deleteMaterial(m.id)}
               >
                 Excluir
               </button>
@@ -99,6 +134,13 @@ const MaterialsPage = () => {
           ))}
         </ul>
       </section>
+
+      {/* =========================
+          LOADING MODAL
+      ========================= */}
+      {showLoading && (
+        <LoadingGenerate message={loadingMessage} />
+      )}
     </div>
   );
 };

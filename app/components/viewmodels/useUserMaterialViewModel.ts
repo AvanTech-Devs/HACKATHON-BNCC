@@ -19,6 +19,8 @@ export type MaterialMode = "CONTENT" | "ACTIVITY";
 export interface MaterialState {
   loading: boolean;
   error: string | null;
+    materials: Material[];
+
 }
 
 /* =========================
@@ -65,6 +67,8 @@ export function useUserMaterialViewModel(): {
   const [state, setState] = useState<MaterialState>({
     loading: false,
     error: null,
+      materials: [],
+
   });
 
 
@@ -94,7 +98,7 @@ export function useUserMaterialViewModel(): {
 
     /* 🧠 Gerar material com IA */
    generateMaterial: async (unitId, materialType) => {
-  setState({ loading: true, error: null });
+  setState({ loading: true, error: null, materials: state.materials });
 
   try {
     const unit = localUnitRepository.getUnitById(unitId);
