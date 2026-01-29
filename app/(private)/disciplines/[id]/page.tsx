@@ -5,12 +5,15 @@ import { useParams, useRouter } from "next/navigation";
 import "@/app/styles/disciplines.css";
 
 import { useUserDisciplineViewModel } from "@/app/components/viewmodels/userDisciplineViewModel";
+import SelectUnitModal from "@/app/components/modals/SelectUnitModal";
 
 const DisciplinePage = () => {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+
   const [showUnitModal, setShowUnitModal] = useState(false);
-  const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
+  const [selectedDisciplineId, setSelectedDisciplineId] = useState<string>(id || "");
+  const [selectedUnitId, setSelectedUnitId] = useState<string>("");
   const [materialMode, setMaterialMode] = useState<"content" | "activity" | null>(null);
 
   const { state, actions } = useUserDisciplineViewModel();
@@ -20,15 +23,22 @@ const DisciplinePage = () => {
   const recentContentMaterials = discipline
     ? actions.getRecentContentMaterials(discipline.id)
     : [];
-
   const recentActivityMaterials = discipline
     ? actions.getRecentActivityMaterials(discipline.id)
     : [];
 
   const handleOpenCreate = (mode: "content" | "activity") => {
     setMaterialMode(mode);
-    setSelectedUnitId(null);
+    setSelectedUnitId("");
     setShowUnitModal(true);
+  };
+
+  const handleConfirmModal = () => {
+    if (!selectedUnitId || !selectedDisciplineId) return;
+    router.push(
+      `/disciplines/${selectedDisciplineId}/units/${selectedUnitId}/materials?mode=${materialMode}`
+    );
+    setShowUnitModal(false);
   };
 
   useEffect(() => {
@@ -37,10 +47,7 @@ const DisciplinePage = () => {
     }
   }, [discipline, state.disciplines, router]);
 
-  if (state.loading) {
-    return <p>Carregando...</p>;
-  }
-
+  if (state.loading) return <p>Carregando...</p>;
   if (!discipline) return null;
 
   return (
@@ -48,13 +55,15 @@ const DisciplinePage = () => {
       <header>
         <h1>{discipline.name}</h1>
         <p>Série: {discipline.grade}</p>
+        <button type="button" onClick={() => router.push(`/dashboard`)}>
+          Voltar
+        </button>
       </header>
 
       <section className="disciplines-cards">
         {/* 📘 CARD AULAS */}
         <div className="discipline-card">
           <h2>📘 Aulas</h2>
-
           {discipline.units.length === 0 ? (
             <p>Nenhuma aula criada.</p>
           ) : (
@@ -64,20 +73,15 @@ const DisciplinePage = () => {
                   key={unit.id}
                   className="unit-item"
                   onClick={() =>
-                    router.push(
-                      `/disciplines/${discipline.id}/units/${unit.id}`
-                    )
+                    router.push(`/disciplines/${discipline.id}/units/${unit.id}`)
                   }
                 >
                   <span className="unit-title">{unit.theme}</span>
-
                   <button
                     className="delete-button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (
-                        confirm(`Deseja excluir a aula "${unit.theme}"?`)
-                      ) {
+                      if (confirm(`Deseja excluir a aula "${unit.theme}"?`)) {
                         actions.deleteUnit(discipline.id, unit.id);
                       }
                     }}
@@ -88,12 +92,9 @@ const DisciplinePage = () => {
               ))}
             </ul>
           )}
-
           <button
             className="dashboard-button primary"
-            onClick={() =>
-              router.push(`/disciplines/${discipline.id}/create-unit`)
-            }
+            onClick={() => router.push(`/disciplines/${discipline.id}/create-unit`)}
           >
             + Criar Aula
           </button>
@@ -102,7 +103,6 @@ const DisciplinePage = () => {
         {/* 📄 CARD PDF & SLIDES */}
         <div className="discipline-card">
           <h2>📄 PDFs & Slides</h2>
-
           {recentContentMaterials.length === 0 ? (
             <p>Nenhum material recente.</p>
           ) : (
@@ -122,7 +122,6 @@ const DisciplinePage = () => {
               ))}
             </ul>
           )}
-
           <button
             className="dashboard-button primary"
             onClick={() => handleOpenCreate("content")}
@@ -134,7 +133,6 @@ const DisciplinePage = () => {
         {/* 📝 CARD ATIVIDADES */}
         <div className="discipline-card">
           <h2>📝 Atividades & Avaliações</h2>
-
           {recentActivityMaterials.length === 0 ? (
             <p>Nenhuma atividade recente.</p>
           ) : (
@@ -154,7 +152,6 @@ const DisciplinePage = () => {
               ))}
             </ul>
           )}
-
           <button
             className="dashboard-button primary"
             onClick={() => handleOpenCreate("activity")}
@@ -164,48 +161,16 @@ const DisciplinePage = () => {
         </div>
       </section>
 
-      {/* MODAL */}
-      {showUnitModal && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h3>Selecione a aula</h3>
-
-            <select
-              value={selectedUnitId ?? ""}
-              onChange={(e) => setSelectedUnitId(e.target.value)}
-            >
-              <option value="">Escolha uma aula</option>
-              {discipline.units.map((unit) => (
-                <option key={unit.id} value={unit.id}>
-                  {unit.theme}
-                </option>
-              ))}
-            </select>
-
-            <div className="modal-actions">
-              <button
-                className="dashboard-button"
-                onClick={() => setShowUnitModal(false)}
-              >
-                Cancelar
-              </button>
-
-              <button
-                className="dashboard-button primary"
-                disabled={!selectedUnitId}
-                onClick={() => {
-                  router.push(
-                    `/disciplines/${discipline.id}/units/${selectedUnitId}/materials?mode=${materialMode}`
-                  );
-                  setShowUnitModal(false);
-                }}
-              >
-                Confirmar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* MODAL PADRÃO */}
+      {showUnitModal && discipline && (
+  <SelectUnitModal
+    discipline={discipline}
+    selectedUnitId={selectedUnitId}
+    setSelectedUnitId={setSelectedUnitId}
+    onCancel={() => setShowUnitModal(false)}
+    onConfirm={handleConfirmModal}
+  />
+)}
     </div>
   );
 };
