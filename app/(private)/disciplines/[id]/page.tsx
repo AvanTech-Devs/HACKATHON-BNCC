@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation";
 import "@/app/styles/disciplines.css";
 
 import { useUserDisciplineViewModel } from "@/app/components/viewmodels/userDisciplineViewModel";
-type MaterialMode = "CONTENT" | "ACTIVITY";
 
 const DisciplinePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,10 +16,13 @@ const DisciplinePage = () => {
     (d) => d.id === id
   );
 
-  const recentMaterials =
-    discipline
-      ? actions.getRecentMaterialsByDiscipline(discipline.id)
-      : [];
+  const recentContentMaterials = discipline
+    ? actions.getRecentContentMaterials(discipline.id)
+    : [];
+
+  const recentActivityMaterials = discipline
+    ? actions.getRecentActivityMaterials(discipline.id)
+    : [];
 
   useEffect(() => {
     if (!discipline && state.disciplines.length > 0) {
@@ -35,17 +37,6 @@ const DisciplinePage = () => {
   if (!discipline) {
     return null;
   }
-  const recentSlidesAndPdfs = recentMaterials.filter(
-  (m) => m.type === "PDF" || m.type === "SLIDES"
-);
-
-const recentActivities = recentMaterials.filter(
-  (m) =>
-    m.type === "ATIVIDADE" ||
-    m.type === "RESUMO" ||
-    m.type === "PROVA"
-);
-
 
   return (
     <div className="disciplines-container">
@@ -54,88 +45,130 @@ const recentActivities = recentMaterials.filter(
         <p>Série: {discipline.grade}</p>
       </header>
 
-    <section className="disciplines-cards">
-  {/* 📘 CARD AULAS */}
-  <div className="discipline-card">
-    <h2>📘 Aulas</h2>
+      <section className="disciplines-cards">
+       {/* 📘 CARD AULAS */}
+<div className="discipline-card">
+  <h2>📘 Aulas</h2>
 
-    {discipline.units.length === 0 ? (
-      <p>Nenhuma aula criada.</p>
-    ) : (
-      <ul>
-        {discipline.units.slice(0, 3).map((unit) => (
-          <li key={unit.id}>{unit.theme}</li>
-        ))}
-      </ul>
-    )}
+  {discipline.units.length === 0 ? (
+    <p>Nenhuma aula criada.</p>
+  ) : (
+    <ul>
+      {discipline.units.slice(0, 3).map((unit) => (
+        <li
+          key={unit.id}
+          className="unit-item"
+          onClick={() =>
+            router.push(
+              `/disciplines/${discipline.id}/units/${unit.id}`
+            )
+          }
+        >
+          <span className="unit-title">{unit.theme}</span>
 
-    <button
-      onClick={() =>
-        router.push(
-          `/disciplines/${discipline.id}/create-unit`
-        )
-      }
-    >
-      + Criar Aula
-    </button>
-  </div>
+          <button
+            className="delete-button"
+            onClick={(e) => {
+              e.stopPropagation();
 
-  {/* 📄 CARD PDF & SLIDES */}
-  <div className="discipline-card">
-    <h2>📄 PDFs & Slides</h2>
+              const confirmDelete = confirm(
+                `Deseja excluir a aula "${unit.theme}"?`
+              );
 
-    {recentSlidesAndPdfs.length === 0 ? (
-      <p>Nenhum material recente.</p>
-    ) : (
-      <ul>
-        {recentSlidesAndPdfs.slice(0, 3).map((m) => (
-          <li key={m.id}>
-            {m.title} ({m.type})
-          </li>
-        ))}
-      </ul>
-    )}
+              if (confirmDelete) {
+                actions.deleteUnit(discipline.id, unit.id);
+              }
+            }}
+          >
+            🗑️
+          </button>
+        </li>
+      ))}
+    </ul>
+  )}
 
-    <button
-      onClick={() =>
-        router.push(
-  `/disciplines/${discipline.id}/units/${discipline.units[0]?.id}/materials?mode=content`
-)
+  <button
+    onClick={() =>
+      router.push(
+        `/disciplines/${discipline.id}/create-unit`
+      )
+    }
+  >
+    + Criar Aula
+  </button>
+</div>
 
-      }
-    >
-      Criar Material
-    </button>
-  </div>
 
-  {/* 📝 CARD ATIVIDADES */}
-  <div className="discipline-card">
-    <h2>📝 Atividades & Avaliações</h2>
+        {/* 📄 CARD PDF & SLIDES */}
+        <div className="discipline-card">
+          <h2>📄 PDFs & Slides</h2>
 
-    {recentActivities.length === 0 ? (
-      <p>Nenhuma atividade recente.</p>
-    ) : (
-      <ul>
-        {recentActivities.slice(0, 3).map((m) => (
-          <li key={m.id}>
-            {m.title} ({m.type})
-          </li>
-        ))}
-      </ul>
-    )}
+          {recentContentMaterials.length === 0 ? (
+            <p>Nenhum material recente.</p>
+          ) : (
+            <ul>
+              {recentContentMaterials.map((m) => (
+                <li
+                  key={m.id}
+                  className="clickable"
+                  onClick={() =>
+                    router.push(
+                      `/disciplines/${discipline.id}/units/${m.unitId}/materials/${m.id}`
+                    )
+                  }
+                >
+                  {m.title} ({m.type})
+                </li>
+              ))}
+            </ul>
+          )}
 
-    <button
-      onClick={() =>
-          router.push(
-            `/disciplines/${discipline.id}/units/${discipline.units[0]?.id}/materials?mode=activity`
-          )
-      }
-    >
-      Criar Atividade
-    </button>
-  </div>
-</section>
+          <button
+            onClick={() =>
+              router.push(
+                `/disciplines/${discipline.id}/units/${discipline.units[0]?.id}/materials?mode=content`
+              )
+            }
+          >
+            Criar Material
+          </button>
+        </div>
 
+        {/* 📝 CARD ATIVIDADES */}
+        <div className="discipline-card">
+          <h2>📝 Atividades & Avaliações</h2>
+
+          {recentActivityMaterials.length === 0 ? (
+            <p>Nenhuma atividade recente.</p>
+          ) : (
+            <ul>
+              {recentActivityMaterials.map((m) => (
+                <li
+                  key={m.id}
+                  className="clickable"
+                  onClick={() =>
+                    router.push(
+                      `/disciplines/${discipline.id}/units/${m.unitId}/materials/${m.id}`
+                    )
+                  }
+                >
+                  {m.title} ({m.type})
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <button
+            onClick={() =>
+              router.push(
+                `/disciplines/${discipline.id}/units/${discipline.units[0]?.id}/materials?mode=activity`
+              )
+            }
+          >
+            Criar Atividade
+          </button>
+        </div>
+      </section>
     </div>
   );
 };

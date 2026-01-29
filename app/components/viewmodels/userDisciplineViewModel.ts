@@ -8,6 +8,10 @@ import { localLogRepository } from "@/app/models/repository/localLogRepository";
 import { localMaterialRepository } from "@/app/models/repository/localMaterialRepository";
 
 import { Material } from "@/app/models/types/material";
+export type MaterialMode = "CONTENT" | "ACTIVITY";
+
+
+
 
 /* =========================
    STATE
@@ -23,19 +27,34 @@ export interface DisciplineState {
 ========================= */
 export interface DisciplineActions {
   loadDisciplines: () => void;
-  addDiscipline: (name: string, grade: string) => Promise<Discipline>;
+
+  addDiscipline: (
+    name: string,
+    grade: string
+  ) => Promise<Discipline>;
+
   confirmCreateDiscipline: (
     discipline: string,
     levelLabel: string,
     year: string
   ) => Promise<Discipline>;
-  deleteUnit: (disciplineId: string, unitId: string) => void;
-  /* 🔹 NOVO */
-  getRecentMaterialsByDiscipline: (
+
+  deleteUnit: (
+    disciplineId: string,
+    unitId: string
+  ) => void;
+
+  getRecentContentMaterials: (
+    disciplineId: string,
+    limit?: number
+  ) => Material[];
+
+  getRecentActivityMaterials: (
     disciplineId: string,
     limit?: number
   ) => Material[];
 }
+
 
 
 /* =========================
@@ -50,6 +69,33 @@ export function useUserDisciplineViewModel(): {
     loading: false,
     error: null,
   });
+
+/* =========================
+   HELPERS (privados)
+========================= */
+const getMaterialsByDisciplineInternal = (
+  disciplineId: string
+): Material[] => {
+  const discipline = state.disciplines.find(
+    (d) => d.id === disciplineId
+  );
+
+  if (!discipline) return [];
+
+  const unitIds = discipline.units.map((u) => u.id);
+
+  return localMaterialRepository
+    .getMaterials()
+    .filter((m: Material) =>
+      unitIds.includes(m.unitId)
+    )
+    .sort(
+      (a, b) =>
+        b.createdAt.getTime() - a.createdAt.getTime()
+    );
+};
+
+
 
   /* 🔹 LOAD */
   const loadDisciplines = useCallback(() => {
@@ -195,26 +241,34 @@ const actions: DisciplineActions = {
         };
       }
     });
+
   },
 
-  /* 🔹 MATERIAIS RECENTES DA DISCIPLINA */
-  getRecentMaterialsByDiscipline: (disciplineId, limit = 5) => {
-    const discipline = state.disciplines.find(
-      (d) => d.id === disciplineId
-    );
-
-    if (!discipline) return [];
-
-    const unitIds = discipline.units.map((u) => u.id);
-
-    return localMaterialRepository
-      .getMaterials()
-      .filter((material) =>
-        unitIds.includes(material.unitId)
+   /* 📄 PDFs & Slides */
+  getRecentContentMaterials: (
+    disciplineId,
+    limit = 3
+  ) => {
+    return getMaterialsByDisciplineInternal(disciplineId)
+      .filter(
+        (m) =>
+          m.type === "PDF" ||
+          m.type === "SLIDES"
       )
-      .sort(
-        (a, b) =>
-          b.createdAt.getTime() - a.createdAt.getTime()
+      .slice(0, limit);
+  },
+
+  /* 📝 Atividades */
+  getRecentActivityMaterials: (
+    disciplineId,
+    limit = 3
+  ) => {
+    return getMaterialsByDisciplineInternal(disciplineId)
+      .filter(
+        (m) =>
+          m.type === "RESUMO" ||
+          m.type === "ATIVIDADE" ||
+          m.type === "PROVA"
       )
       .slice(0, limit);
   },
