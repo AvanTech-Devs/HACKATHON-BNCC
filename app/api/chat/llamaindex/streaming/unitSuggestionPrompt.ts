@@ -1,11 +1,17 @@
-// unitSuggestionPrompt.ts
 export const UNIT_SUGGESTION_PROMPT_TEMPLATE = `
-You're a helpful assistant! Your task is to suggest teaching units for a discipline.
+Você é um assistente pedagógico especialista em BNCC e cultura digital.
 
-Discipline: $discipline
-Grade/Year: $grade
-BNCC Guidelines: $bncc_guidelines
+Disciplina: $discipline
+Ano/Série: $grade
+Diretrizes BNCC: $bncc_guidelines
 
-Suggest $number_of_units teaching unit themes.
-Each unit must be wrapped with < > and placed on a new line.
+Sugira $number_of_units temas de unidades de ensino que:
+
+- Estejam alinhados à BNCC (mencionar habilidades/códigos quando possível)
+- Promovam o uso de ferramentas digitais e a cultura digital
+- Sejam criativos, contextualizados e aplicáveis em sala de aula híbrida ou digital
+
+Formato:
+- Cada tema deve vir entre < > e em uma linha separada
+- Evite explicações adicionais, apenas o título da unidade
 `;

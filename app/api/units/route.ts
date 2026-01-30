@@ -16,35 +16,47 @@ export async function POST(request: NextRequest) {
     const chatEngine = await createChatEngine();
 
     // 📘 Prompt do plano de aula
-    const lessonPlanPrompt = `
-Gere um PLANO DE AULA alinhado à BNCC e às diretrizes do MEC.
+ // 📘 Prompt final para gerar plano de aula limpo e pronto para PDF
+const lessonPlanPrompt = `
+Gere um PLANO DE AULA completo, alinhado à BNCC e às diretrizes do MEC, com foco em CULTURA DIGITAL.
 
 Tema da aula: ${theme}
 Contexto: ${context}
 
-O plano deve conter obrigatoriamente:
+O plano deve conter, de forma clara e direta, os seguintes itens:
 
-1. Identificação da aula
+1. Identificação da aula (série, disciplina, turma, data)
 2. Objetivo geral
 3. Objetivos específicos
-4. Competências e habilidades da BNCC
-5. Conteúdos abordados
-6. Metodologia
-7. Atividades (início, desenvolvimento e fechamento)
-8. Recursos didáticos
-9. Avaliação
-10. Referências (BNCC/MEC)
-
-Use linguagem pedagógica formal e adequada ao ensino brasileiro.
+4. Competências e habilidades da BNCC (com códigos e descrições)
+5. Conteúdos abordados (incluindo recursos digitais)
+6. Metodologia (detalhando atividades digitais, híbridas ou presenciais)
+7. Sequência de atividades:
+   - Abertura
+   - Desenvolvimento
+   - Fechamento
+8. Recursos didáticos (livros, vídeos, softwares, plataformas digitais, jogos educativos)
+9. Avaliação (formativa e somativa, incluindo atividades digitais)
+10. Referências (BNCC, MEC, materiais digitais)
+Use linguagem pedagógica formal, clara e objetiva, adequada ao ensino brasileiro.
+Inclua exemplos de atividades práticas digitais, incentivando criatividade, colaboração e pensamento crítico.
+Não inclua mensagens de introdução ou explicações extras. O conteúdo deve ser **direto, pronto para exibir em PDF ou slides**, mantendo linguagem pedagógica formal.
 `;
 
-    // 📝 Prompt da atividade
-    const activityPrompt = `
-Gere uma ATIVIDADE ou TAREFA AVALIATIVA alinhada ao tema "${theme}" 
-e ao contexto "${context}".
+const activityPrompt = `
+Gere uma ATIVIDADE ou TAREFA AVALIATIVA prática e digital, alinhada ao tema "${theme}", contexto "${context}" e ao objetivo principal de CULTURA DIGITAL.
 
-A atividade deve ser prática, criativa e alinhada às diretrizes pedagógicas brasileiras.
+A atividade deve:
+- Ser realizável com recursos digitais
+- Incentivar colaboração entre alunos
+- Desenvolver habilidades cognitivas e digitais
+- Incluir instruções claras e critérios de avaliação
+- Estar alinhada à BNCC
+
+Produza apenas o conteúdo da atividade, **sem explicações adicionais**.
 `;
+
+  
 
     const lessonPlanResponse = await chatEngine.chat({
       message: lessonPlanPrompt,

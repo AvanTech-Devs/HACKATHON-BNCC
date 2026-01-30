@@ -20,11 +20,20 @@ export async function generateUnitSuggestions(
           .replace("$bncc_guidelines", bnccGuidelines)
           .replace("$number_of_units", numberOfUnits.toString())
       : `
-Generate a pedagogical context paragraph.
+Você é um assistente pedagógico especialista em BNCC e cultura digital.
 
-Discipline: ${discipline}
-Grade/Year: ${grade}
-BNCC: ${bnccGuidelines}
+Disciplina: ${discipline}
+Ano/Série: ${grade}
+Diretrizes BNCC: ${bnccGuidelines}
+
+Gere um PARÁGRAFO DESCRITIVO DE CONTEXTO para a unidade de ensino que:
+
+- Estimule a cultura digital e o uso de tecnologias
+- Seja contextualizado para a realidade dos alunos
+- Inclua ideias de atividades digitais, pesquisa online ou interação com plataformas
+- Esteja alinhado às habilidades da BNCC mencionadas
+
+Não inclua explicações adicionais, apenas o texto do contexto.
 `;
 
   try {
