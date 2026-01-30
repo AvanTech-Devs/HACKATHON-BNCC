@@ -135,3 +135,6 @@ http://localhost:3000
 - Francisco Igor Silva Santos
 - Sávyo Francisco Barbosa Nascimento
 - Mardone Silva Pereira
+
+## Site em deploy
+O sistema está disponível em: https://hackathon-bncc.onrender.com
