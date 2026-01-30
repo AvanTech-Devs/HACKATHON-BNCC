@@ -14,4 +14,5 @@ Sugira $number_of_units temas de unidades de ensino que:
 Formato:
 - Cada tema deve vir entre < > e em uma linha separada
 - Evite explicações adicionais, apenas o título da unidade
+Não inclua placeholders de citação ou links automáticos. Se precisar referenciar algo, inclua apenas referências textuais reais (BNCC, MEC ou materiais digitais).
 `;

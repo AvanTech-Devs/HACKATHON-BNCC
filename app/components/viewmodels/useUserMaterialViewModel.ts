@@ -125,62 +125,65 @@ export function useUserMaterialViewModel(): {
       );
     },
 
-    /* 🧠 Gerar material */
-    generateMaterial: async (unitId, materialType) => {
-      setState((prev) => ({ ...prev, loading: true }));
+   /* 🧠 Gerar material */
+generateMaterial: async (unitId, materialType) => {
+  setState((prev) => ({ ...prev, loading: true }));
 
-      try {
-        const unit =
-          await supabaseUnitRepository.getUnitById(unitId);
+  try {
+    const unit = await supabaseUnitRepository.getUnitById(unitId);
+    if (!unit) throw new Error("Unidade não encontrada");
 
-        if (!unit) throw new Error();
+    // Pegando o conteúdo atual da página (edição incluída)
+    const lessonPlan = unit.lessonPlan ?? "";
+    const activity = unit.activity ?? "";
 
-        const response = await fetch("/api/materials", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            unitTitle: unit.theme,
-            unitContext: unit.context,
-            materialType,
-          }),
-        });
+    const response = await fetch("/api/materials", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        unitTitle: unit.theme,
+        unitContext: unit.context,
+        lessonPlan,
+        activity,
+        materialType,
+      }),
+    });
 
-        if (!response.ok) throw new Error();
+    if (!response.ok) throw new Error("Erro ao gerar material");
 
-        const data = await response.json();
+    const data = await response.json();
 
-        const material: Material = {
-          id: crypto.randomUUID(),
-          unitId,
-          title: `${materialType} - ${unit.theme}`,
-          type: materialType,
-          content: data.content,
-          createdAt: new Date(),
-        };
+    const material: Material = {
+      id: crypto.randomUUID(),
+      unitId,
+      title: `${materialType} - ${unit.theme}`,
+      type: materialType,
+      content: data.content,
+      createdAt: new Date(),
+    };
 
-        await supabaseMaterialRepository.saveMaterial(material);
+    await supabaseMaterialRepository.saveMaterial(material);
 
-        setState((prev) => ({
-          ...prev,
-          materials: [material, ...prev.materials],
-        }));
+    setState((prev) => ({
+      ...prev,
+      materials: [material, ...prev.materials],
+    }));
 
-        supabaseLogRepository.addLog(
-          "Material gerado",
-          material.title
-        );
+    supabaseLogRepository.addLog("Material gerado", material.title);
 
-        return material;
-      } catch {
-        setState((prev) => ({
-          ...prev,
-          error: "Erro ao gerar material",
-        }));
-        return null;
-      } finally {
-        setState((prev) => ({ ...prev, loading: false }));
-      }
-    },
+    return material;
+  } catch (err) {
+    console.error(err);
+    setState((prev) => ({
+      ...prev,
+      error: "Erro ao gerar material",
+    }));
+    return null;
+  } finally {
+    setState((prev) => ({ ...prev, loading: false }));
+  }
+},
+
 
     /* 🗑️ Excluir */
     deleteMaterial: async (materialId) => {

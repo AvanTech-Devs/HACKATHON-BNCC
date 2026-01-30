@@ -32,7 +32,7 @@ Gere um PARÁGRAFO DESCRITIVO DE CONTEXTO para a unidade de ensino que:
 - Seja contextualizado para a realidade dos alunos
 - Inclua ideias de atividades digitais, pesquisa online ou interação com plataformas
 - Esteja alinhado às habilidades da BNCC mencionadas
-
+Não inclua placeholders de citação ou links automáticos. Se precisar referenciar algo, inclua apenas referências textuais reais (BNCC, MEC ou materiais digitais).
 Não inclua explicações adicionais, apenas o texto do contexto.
 `;
 
