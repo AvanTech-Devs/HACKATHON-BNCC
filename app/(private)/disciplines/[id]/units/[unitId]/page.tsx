@@ -1,12 +1,13 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useUserUnitDetailsViewModel } from "@/app/components/viewmodels/userUnitDetailsViewModel";
-import { parseRichText } from "@/app/utils/parseRichText";
 import "@/app/styles/unit-details.css";
 
+import { useUserUnitDetailsViewModel } from "@/app/components/viewmodels/userUnitDetailsViewModel";
+import { parseRichText } from "@/app/utils/parseRichText";
+
 export default function UnitDetailsPage() {
-  const { unitId } = useParams();
+  const { unitId } = useParams<{ unitId: string }>();
   const router = useRouter();
 
   const {
@@ -19,78 +20,106 @@ export default function UnitDetailsPage() {
     setLessonPlanInput,
     setActivityInput,
     saveUnit,
-  } = useUserUnitDetailsViewModel(unitId as string);
+  } = useUserUnitDetailsViewModel(unitId);
 
   if (loading) {
-    return <p className="loading-text">Carregando unidade...</p>;
+    return <p className="unit-loading">Carregando aula...</p>;
   }
 
   if (!unit) {
-    return <p className="loading-text">Unidade não encontrada.</p>;
+    return <p className="unit-loading">Unidade não encontrada.</p>;
   }
 
   return (
-    <div className="unit-details-container">
+    <div
+      className={`unit-details-container ${
+        isEditing ? "editing" : ""
+      }`}
+    >
       {/* HEADER */}
-      <div className="unit-details-header">
-        <h1>{unit.theme}</h1>
-        <p>
-          <strong>Criada em:</strong>{" "}
-          {unit.createdAt.toLocaleDateString("pt-BR")}
-        </p>
-      </div>
+      <header className="unit-details-header">
+        <div className="unit-header-info">
+          <h1>{unit.theme}</h1>
+          <p>
+            Criada em{" "}
+            {unit.createdAt.toLocaleDateString("pt-BR")}
+          </p>
+        </div>
+
+        <div className="unit-header-actions">
+          {!isEditing && (
+            <button
+              className="unit-button primary"
+              onClick={() => setIsEditing(true)}
+            >
+              Editar
+            </button>
+          )}
+
+          <button
+            className="unit-button secondary"
+            onClick={() => router.back()}
+          >
+            Voltar
+          </button>
+        </div>
+      </header>
 
       {/* PLANO DE AULA */}
-      <div className="unit-section">
-        <h2>Plano de Aula</h2>
+      <section className="unit-section">
+        <h2>📘 Plano de Aula</h2>
+
         {isEditing ? (
           <textarea
             className="unit-textarea"
             value={lessonPlanInput}
-            onChange={(e) => setLessonPlanInput(e.target.value)}
-            rows={8}
+            onChange={(e) =>
+              setLessonPlanInput(e.target.value)
+            }
+            rows={10}
           />
         ) : (
-          <div className="unit-text-block">{parseRichText(unit.lessonPlan)}</div>
+          <div className="unit-text-block">
+            {parseRichText(unit.lessonPlan)}
+          </div>
         )}
-      </div>
+      </section>
 
       {/* ATIVIDADE */}
-      <div className="unit-section">
-        <h2>Atividade</h2>
+      <section className="unit-section">
+        <h2>📝 Atividade</h2>
+
         {isEditing ? (
           <textarea
             className="unit-textarea"
             value={activityInput}
-            onChange={(e) => setActivityInput(e.target.value)}
-            rows={8}
+            onChange={(e) =>
+              setActivityInput(e.target.value)
+            }
+            rows={10}
           />
         ) : (
-          <div className="unit-text-block">{parseRichText(unit.activity)}</div>
+          <div className="unit-text-block">
+            {parseRichText(unit.activity)}
+          </div>
         )}
-      </div>
+      </section>
 
-      {/* BOTÕES */}
-      <div className="unit-buttons">
-        {isEditing ? (
-          <>
-            <button className="primary" onClick={saveUnit}>
-              Salvar
-            </button>
-            <button className="secondary" onClick={() => setIsEditing(false)}>
-              Cancelar
-            </button>
-          </>
-        ) : (
-          <button className="primary" onClick={() => setIsEditing(true)}>
-            Editar
+      {/* AÇÕES DE EDIÇÃO */}
+      {isEditing && (
+        <div className="unit-buttons">
+          <button className="unit-button primary" onClick={saveUnit}>
+            Salvar
           </button>
-        )}
 
-        <button className="secondary" onClick={() => router.back()}>
-          Voltar
-        </button>
-      </div>
+          <button
+            className="unit-button secondary"
+            onClick={() => setIsEditing(false)}
+          >
+            Cancelar
+          </button>
+        </div>
+      )}
     </div>
   );
 }

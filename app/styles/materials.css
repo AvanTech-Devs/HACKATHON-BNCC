@@ -19,7 +19,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
 }
 
 .materials-container header h1 {
@@ -35,69 +34,40 @@
   background-color: #f3f4f6;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
-.materials-container header button:hover {
-  background-color: #e5e7eb;
-}
 /* ================================
-   AÇÕES (Gerar com IA)
+   AÇÕES (IA)
 ================================ */
 .materials-actions button {
-  width: 100%; /* garante largura total do container */
-  padding: 0.75rem 1.2rem; /* aumenta levemente o padding para ficar uniforme */
+  width: 100%;
+  padding: 0.75rem 1.2rem;
   border-radius: 10px;
   border: none;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.1s ease, background-color 0.2s ease, color 0.2s ease;
-  margin-bottom: 0.8rem; /* espaçamento entre os botões */
-
-  /* COR PRINCIPAL PADRÃO DASHBOARD */
-  background-color: #0369a1; /* azul escuro */
-  color: #ffffff; /* texto branco para contraste */
-  text-align: center; /* garante que o texto fique centralizado */
+  margin-bottom: 0.8rem;
+  background-color: #0369a1;
+  color: #fff;
 }
 
 .materials-actions button:hover:not(:disabled) {
-  background-color: #1e40af; /* hover azul mais forte */
-  color: #ffffff;
-  transform: translateY(-1px);
+  background-color: #1e40af;
 }
-
-.materials-actions button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 
 /* ================================
    LISTA DE MATERIAIS
 ================================ */
 .materials-list {
-  background-color: var(--card-bg, #fff);
+  background: #fff;
   padding: 1.5rem;
   border-radius: 12px;
-  border: 1px solid var(--border, #e5e7eb);
+  border: 1px solid #e5e7eb;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  
-}
-
-.materials-list h2 {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--primary, #1e3a8a);
-  margin-bottom: 0.5rem;
 }
 
 .materials-list ul {
   list-style: none;
-  padding: 0;
-  margin: 0;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -105,69 +75,57 @@
 
 .materials-list li {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 0.75rem;
   padding: 0.8rem 1rem;
   border-radius: 10px;
   background-color: #f9fafb;
-  border: 1px solid var(--border, #e5e7eb);
-  gap: 0.5rem;
+  border: 1px solid #e5e7eb;
 }
 
 .materials-list li strong {
   font-weight: 600;
-  color: var(--text-main, #111827);
 }
 
 .materials-list li span {
   font-size: 0.9rem;
-  color: var(--text-muted, #6b7280);
-  margin-left: 1rem;
+  color: #6b7280;
 }
 
-.materials-list li button {
-  padding: 0.5rem 1rem;
+/* ================================
+   BOTÃO VER (AZUL CLARO → ESCURO)
+================================ */
+.btn-view {
+  margin-left: auto;
+  padding: 0.5rem 1.1rem;
   border-radius: 8px;
   border: none;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.85rem;
-  transition: transform 0.1s ease, background-color 0.2s ease;
+  background-color: #3358be; /* AZUL CLARO */
+  color: #ffffff;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-.materials-list li button:first-of-type {
-  background-color: var(--primary, #1e3a8a);
-  color: #fff;
-  margin-left: auto;
-}
-
-.materials-list li button:first-of-type:hover {
-  background-color: var(--primary-hover, #1e40af);
-  transform: translateY(-1px);
-}
-
-.materials-list li button:last-of-type {
-  background-color: #f3f4f6;
-  border: 1px solid var(--border, #e5e7eb);
-  color: var(--text-main, #111827);
-}
-
-.materials-list li button:last-of-type:hover {
-  background-color: #e5e7eb;
+.btn-view:hover {
+  background-color: #1e3a8a; /* AZUL ESCURO */
   transform: translateY(-1px);
 }
 
 /* ================================
-   TEXTO DE LOADING / ERRO
+   BOTÃO EXCLUIR
 ================================ */
-.materials-container p {
-  color: var(--text-main, #111827);
-  font-size: 0.95rem;
+.btn-delete {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background-color: #f3f4f6;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
 }
 
-.loading-text {
-  text-align: center;
-  font-weight: 500;
-  color: var(--text-muted, #6b7280);
-  margin-top: 2rem;
+.btn-delete:hover {
+  background-color: #e5e7eb;
 }

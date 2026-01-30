@@ -86,7 +86,7 @@ const DisciplinePage = () => {
                       }
                     }}
                   >
-                    🗑️
+                    Excluir
                   </button>
                 </li>
               ))}

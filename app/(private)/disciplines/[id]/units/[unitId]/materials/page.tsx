@@ -16,7 +16,6 @@ import {
 
 import LoadingGenerate from "@/app/components/modals/LoadingGenerate";
 
-
 const MaterialsPage = () => {
   const { id, unitId } = useParams<{
     id: string;
@@ -46,6 +45,9 @@ const MaterialsPage = () => {
 
   return (
     <div className="materials-container">
+      {/* =========================
+          HEADER
+      ========================= */}
       <header>
         <h1>
           {mode === "CONTENT"
@@ -61,7 +63,7 @@ const MaterialsPage = () => {
       {state.error && <p>{state.error}</p>}
 
       {/* =========================
-          AÇÕES
+          AÇÕES (GERAR COM IA)
       ========================= */}
       <section className="materials-actions">
         <h2>Gerar com IA</h2>
@@ -87,7 +89,6 @@ const MaterialsPage = () => {
                 );
               }
 
-              // pequeno delay para UX
               setTimeout(() => {
                 setShowLoading(false);
                 setLoadingMessage("");
@@ -101,7 +102,7 @@ const MaterialsPage = () => {
       </section>
 
       {/* =========================
-          LISTA
+          LISTA DE MATERIAIS
       ========================= */}
       <section className="materials-list">
         <h2>Materiais Criados</h2>
@@ -117,6 +118,7 @@ const MaterialsPage = () => {
               <span>{m.type}</span>
 
               <button
+                className="btn-view"
                 onClick={() =>
                   router.push(
                     `/disciplines/${id}/units/${unitId}/materials/${m.id}`
@@ -127,6 +129,7 @@ const MaterialsPage = () => {
               </button>
 
               <button
+                className="btn-delete"
                 onClick={() => actions.deleteMaterial(m.id)}
               >
                 Excluir
@@ -137,7 +140,7 @@ const MaterialsPage = () => {
       </section>
 
       {/* =========================
-          LOADING MODAL
+          MODAL DE LOADING
       ========================= */}
       {showLoading && (
         <LoadingGenerate message={loadingMessage} />
