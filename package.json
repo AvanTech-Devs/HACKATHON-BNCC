@@ -5,7 +5,8 @@
     "format": "prettier --ignore-unknown --cache --check .",
     "format:write": "prettier --ignore-unknown --write .",
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --no-lint && next export"
+,
     "export": "next export",
     "start": "next start",
     "lint": "next lint",
