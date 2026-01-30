@@ -275,3 +275,31 @@
 .dashboard-create-material:hover {
   background-color: var(--primary-hover);
 }
+
+
+/* =========================
+   BOTÃO SAIR – DASHBOARD
+========================= */
+.dashboard-button.logout {
+  background-color: #ef4444; /* vermelho forte */
+  color: #ffffff;
+  border: none;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  transition: all 0.2s ease, transform 0.1s ease;
+}
+
+.dashboard-button.logout:hover {
+  background-color: #dc2626; /* vermelho ainda mais forte no hover */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+.dashboard-button.logout:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}

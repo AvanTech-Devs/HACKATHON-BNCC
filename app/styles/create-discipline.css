@@ -1,54 +1,55 @@
 /* ===============================
    CONTAINER GERAL
 =============================== */
-
 .create-discipline-container {
   min-height: 100vh;
-  background: #f5f7fb;
+  background-color: var(--background);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem;
+  font-family: "Inter", "Roboto", system-ui, sans-serif;
 }
 
 /* ===============================
    CARD PRINCIPAL
 =============================== */
-
-.create-discipline-form {
-  background: #ffffff;
+.create-discipline-wrapper {
   width: 100%;
   max-width: 520px;
+  background-color: var(--card-bg);
   padding: 2rem;
-  border-radius: 18px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 /* ===============================
    HEADER
 =============================== */
-
 .create-discipline-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .create-discipline-header h1 {
-  font-size: 1.75rem;
+  font-size: 1.6rem;
   font-weight: 700;
-  color: #111827;
+  color: var(--primary);
 }
 
 .create-discipline-header p {
   margin-top: 0.5rem;
-  color: #6b7280;
+  color: var(--text-muted);
   font-size: 0.95rem;
 }
 
 /* ===============================
    FORMULÁRIO
 =============================== */
-
 .form-group {
   display: flex;
   flex-direction: column;
@@ -58,74 +59,130 @@
 .form-group label {
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #374151;
+  color: var(--text-main);
+  font-size: 0.95rem;
 }
 
-.form-group select {
-  padding: 0.75rem 0.9rem;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
   font-size: 0.95rem;
-  background-color: #fff;
+  font-family: "Inter", "Roboto", system-ui, sans-serif;
+  background-color: var(--background);
+  color: var(--text-main);
   transition: border-color 0.2s ease;
 }
 
-.form-group select:focus {
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
   outline: none;
-  border-color: #22c55e;
+  border-color: var(--primary);
 }
 
 /* ===============================
-   BOTÕES
+   BOTÕES DE SUGESTÃO
 =============================== */
+.input-with-button {
+  display: flex;
+  flex-direction: column; /* botão acima do campo */
+  gap: 0.3rem;
+  margin-bottom: 1rem;
+}
 
-.form-actions {
+.input-with-button button {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  justify-content: center;
+  padding: 0.55rem 0.9rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  background-color: var(--primary);
+  color: #ffffff;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.input-with-button button:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* ===============================
+   BOTÕES DE AÇÃO (SALVAR / CANCELAR)
+=============================== */
+.action-buttons {
   display: flex;
   gap: 1rem;
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 
-.form-button {
+.action-buttons .save-button,
+.action-buttons .cancel-button {
   flex: 1;
-  padding: 0.85rem 1rem;
+  padding: 0.75rem;
+  font-weight: 700;
+  font-size: 1rem;
   border-radius: 12px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
   border: none;
-  transition: all 0.2s ease;
+  cursor: pointer;
+  transition: all 0.2s ease, transform 0.1s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-.form-button.primary {
-  background: #22c55e;
+.action-buttons .save-button {
+  background-color: var(--primary);
   color: #ffffff;
 }
 
-.form-button.primary:hover {
-  background: #16a34a;
+.action-buttons .save-button:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
-.form-button.primary:disabled {
-  background: #86efac;
+.action-buttons .save-button:disabled {
+  background-color: var(--border);
   cursor: not-allowed;
+  color: var(--text-muted);
+  box-shadow: none;
+  transform: none;
 }
 
-.form-button.secondary {
-  background: #e5e7eb;
-  color: #111827;
+.action-buttons .cancel-button {
+  background-color: var(--text-muted);
+  color: #ffffff;
 }
 
-.form-button.secondary:hover {
-  background: #d1d5db;
+.action-buttons .cancel-button:hover {
+  background-color: #4b5563;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.action-buttons .cancel-button:disabled {
+  background-color: var(--border);
+  cursor: not-allowed;
+  color: var(--text-muted);
+  box-shadow: none;
+  transform: none;
 }
 
 /* ===============================
    ERRO
 =============================== */
-
 .error-message {
   margin-top: 1rem;
-  color: #dc2626;
+  color: var(--danger);
   font-size: 0.9rem;
   text-align: center;
 }
